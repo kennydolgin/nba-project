@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Beyond Points Per Game</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=compare3">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=galaxy1">
 </head>
 <body data-static-base="{{ url_for('static', filename='') }}">
   <header class="topbar">
@@ -46,6 +46,52 @@
 
       <div id="comparisonInsight" class="comparison-insight"></div>
       <div id="playerCards" class="player-card-grid"></div>
+
+      <section class="panel universe-panel" aria-label="Winning profile galaxy">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Winning profile galaxy</p>
+            <h2>Winning-associated value is not only points</h2>
+          </div>
+          <p>Each point is a player-season. X blends scoring and shot volume; Y blends creation, rebounding, defensive events, efficiency, and role breadth. Color shows team win context.</p>
+        </div>
+        <div id="roleUniverseChart" class="chart universe-chart"></div>
+      </section>
+
+      <section class="layout visual-layout">
+        <div class="panel role-shape-panel" aria-label="Archetype radar role shape">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Archetype radar</p>
+              <h2>Role shape for the selected seasons</h2>
+            </div>
+            <p>Spokes use percentile rank; the value strip keeps the underlying stats visible.</p>
+          </div>
+          <div id="roleShapeChart" class="chart role-shape-chart"></div>
+        </div>
+
+        <div class="panel constellation-panel" aria-label="Similar seasons constellation">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Similar seasons constellation</p>
+              <h2>Closest historical player-season neighbors</h2>
+            </div>
+            <p>Distance reflects statistical similarity, not player quality or causal impact.</p>
+          </div>
+          <div id="constellationChart" class="chart constellation-chart"></div>
+        </div>
+      </section>
+
+      <section class="panel winning-bands-panel" aria-label="Winning bands benchmark overlay">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Winning bands</p>
+            <h2>Where selected seasons sit against high-winning-team benchmarks</h2>
+          </div>
+          <p>Shaded bands show the middle half of high-winning-team player-seasons for each metric.</p>
+        </div>
+        <div id="winningBandsChart" class="chart winning-bands-chart"></div>
+      </section>
 
       <section class="panel fingerprint-panel" aria-label="Role fingerprint comparison">
         <div class="panel-heading">
@@ -143,7 +189,7 @@
 
   <div id="tooltip" role="status" aria-live="polite"></div>
 
-  <script src="{{ url_for('static', filename='vendor/d3.v7.min.js') }}?v=compare3"></script>
-  <script src="{{ url_for('static', filename='js/app.js') }}?v=compare3"></script>
+  <script src="{{ url_for('static', filename='vendor/d3.v7.min.js') }}?v=galaxy1"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}?v=galaxy1"></script>
 </body>
 </html>

@@ -59,6 +59,28 @@ const compareMetrics = [
   { key: "turnovers_per_36", label: "Turnovers", unit: "to/36", format: d3.format(".1f") },
   { key: "role_category_count", label: "Role breadth", unit: "categories", format: d3.format(".0f") }
 ];
+const roleShapeMetrics = [
+  { key: "points_per_36", label: "Scoring", unit: "pts/36", format: d3.format(".1f") },
+  { key: "assists_per_36", label: "Creation", unit: "ast/36", format: d3.format(".1f") },
+  { key: "rebounds_per_36", label: "Boards", unit: "reb/36", format: d3.format(".1f") },
+  { key: "stocks_per_36", label: "Events", unit: "stl+blk/36", format: d3.format(".2f") },
+  { key: "efg_pct", label: "Efficiency", unit: "eFG%", format: d3.format(".1%") },
+  { key: "role_category_count", label: "Breadth", unit: "roles", format: d3.format(".0f") }
+];
+const winningBandMetrics = [
+  { key: "points_per_36", label: "Scoring", unit: "pts/36", format: d3.format(".1f") },
+  { key: "fga_per_game", label: "Shot volume", unit: "FGA/g", format: d3.format(".1f") },
+  { key: "assists_per_36", label: "Creation", unit: "ast/36", format: d3.format(".1f") },
+  { key: "rebounds_per_36", label: "Rebounding", unit: "reb/36", format: d3.format(".1f") },
+  { key: "stocks_per_36", label: "Defensive events", unit: "stl+blk/36", format: d3.format(".2f") },
+  { key: "efg_pct", label: "Efficiency", unit: "eFG%", format: d3.format(".1%") },
+  { key: "role_category_count", label: "Role breadth", unit: "roles", format: d3.format(".0f") }
+];
+const winBucketColors = {
+  "Low-winning teams": "#8f9bad",
+  "Middle-winning teams": "#2f6f9f",
+  "High-winning teams": "#3b7f64"
+};
 const similarityKeys = [
   "points_per_36",
   "assists_per_36",
@@ -227,6 +249,10 @@ function updateComparison() {
   selectedComparison = selected;
   renderComparisonInsight(selected);
   renderPlayerCards(selected);
+  renderRoleUniverse(selected);
+  renderRoleShape(selected);
+  renderSimilarityConstellation(selected);
+  renderWinningBands(selected);
   renderFingerprintChart(selected);
   renderSimilarityContext(selected);
 
@@ -286,6 +312,446 @@ function renderPlayerCards(selected) {
         </div>
       `;
     });
+}
+
+function renderRoleUniverse(selected) {
+  const container = d3.select("#roleUniverseChart");
+  if (container.empty()) return;
+  container.selectAll("*").remove();
+  if (!playerRows.length) return;
+
+  const width = Math.max(container.node().clientWidth || 1100, 560);
+  const height = width < 760 ? 440 : 520;
+  const margin = { top: 28, right: 34, bottom: 62, left: 70 };
+  const innerWidth = width - margin.left - margin.right;
+  const innerHeight = height - margin.top - margin.bottom;
+  const sampledRows = playerRows
+    .filter(row => row.minutes_per_game >= 10 && Number.isFinite(row.win_pct))
+    .map(row => ({ ...row, universe: roleUniverseCoordinates(row) }))
+    .filter(row => Number.isFinite(row.universe.x) && Number.isFinite(row.universe.y));
+  const selectedRows = selected
+    .map(item => ({ ...item.row, side: item.side, universe: roleUniverseCoordinates(item.row) }))
+    .filter(row => Number.isFinite(row.universe.x) && Number.isFinite(row.universe.y));
+
+  const x = d3.scaleLinear().domain([0, 100]).range([0, innerWidth]);
+  const y = d3.scaleLinear().domain([0, 100]).range([innerHeight, 0]);
+  const r = d3.scaleSqrt()
+    .domain(d3.extent(sampledRows, d => d.minutes_per_game).filter(Number.isFinite))
+    .range([2.2, 6.5]);
+
+  const svg = container.append("svg").attr("width", width).attr("height", height).attr("viewBox", `0 0 ${width} ${height}`);
+  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+  g.append("rect")
+    .attr("class", "winning-zone")
+    .attr("x", x(45))
+    .attr("y", y(82))
+    .attr("width", x(100) - x(45))
+    .attr("height", y(40) - y(82));
+
+  g.append("text")
+    .attr("class", "zone-label")
+    .attr("x", x(47))
+    .attr("y", y(79))
+    .text("more non-scoring breadth around winning profiles");
+
+  g.append("g")
+    .attr("class", "axis")
+    .attr("transform", `translate(0,${innerHeight})`)
+    .call(d3.axisBottom(x).tickValues([0, 25, 50, 75, 100]));
+
+  g.append("g")
+    .attr("class", "axis")
+    .call(d3.axisLeft(y).tickValues([0, 25, 50, 75, 100]));
+
+  g.append("text")
+    .attr("x", innerWidth / 2)
+    .attr("y", innerHeight + 44)
+    .attr("text-anchor", "middle")
+    .attr("class", "bar-label")
+    .text("Scoring and shot-volume percentile blend");
+
+  g.append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("x", -innerHeight / 2)
+    .attr("y", -48)
+    .attr("text-anchor", "middle")
+    .attr("class", "bar-label")
+    .text("Creation, rebounding, defense, efficiency, and breadth");
+
+  g.append("g")
+    .attr("class", "universe-cloud")
+    .selectAll("circle")
+    .data(sampledRows)
+    .join("circle")
+    .attr("cx", d => x(d.universe.x))
+    .attr("cy", d => y(d.universe.y))
+    .attr("r", d => r(d.minutes_per_game))
+    .attr("fill", d => winBucketColors[d.team_success_bucket] || "#8f9bad")
+    .attr("opacity", d => d.team_success_bucket === "High-winning teams" ? .58 : .34)
+    .on("mousemove", (event, d) => showTooltip(event, [
+      `<strong>${d.player}</strong> (${d.year}, ${d.team})`,
+      `Team win context: ${fmtPct(d.win_pct)}`,
+      `Shot-volume blend: ${Math.round(d.universe.x)}th percentile`,
+      `Role-value blend: ${Math.round(d.universe.y)}th percentile`,
+      d.profile_group || "Unlabeled"
+    ].join("<br>")))
+    .on("mouseleave", hideTooltip);
+
+  const selectedLayer = g.append("g").attr("class", "selected-universe-layer");
+
+  selectedLayer.selectAll("circle.selected-ring")
+    .data(selectedRows)
+    .join("circle")
+    .attr("class", "selected-ring")
+    .attr("cx", d => x(d.universe.x))
+    .attr("cy", d => y(d.universe.y))
+    .attr("r", 13)
+    .attr("fill", "none")
+    .attr("stroke", d => compareColors[d.side])
+    .attr("stroke-width", 3);
+
+  selectedLayer.selectAll("circle.selected-core")
+    .data(selectedRows)
+    .join("circle")
+    .attr("class", "selected-core")
+    .attr("cx", d => x(d.universe.x))
+    .attr("cy", d => y(d.universe.y))
+    .attr("r", 5)
+    .attr("fill", "#fff")
+    .attr("stroke", "#0b1f3a")
+    .attr("stroke-width", 1.5);
+
+  selectedLayer.selectAll("text")
+    .data(selectedRows)
+    .join("text")
+    .attr("class", "selected-label")
+    .attr("x", d => clamp(x(d.universe.x) + 15, 4, innerWidth - 120))
+    .attr("y", d => clamp(y(d.universe.y) - 10, 12, innerHeight - 4))
+    .text(d => `${d.side}: ${d.player}`);
+
+  const legend = container.append("div").attr("class", "legend universe-legend");
+  successOrder.forEach(bucket => {
+    const item = legend.append("span");
+    item.append("i").attr("class", "swatch").style("background", winBucketColors[bucket]);
+    item.append("b").text(bucket);
+  });
+  selectedRows.forEach(row => {
+    const item = legend.append("span");
+    item.append("i").attr("class", "swatch selected-swatch").style("border-color", compareColors[row.side]);
+    item.append("b").text(`Player ${row.side}: ${row.player}`);
+  });
+}
+
+function roleUniverseCoordinates(row) {
+  return {
+    x: avgFinite([
+      percentile(row, "points_per_36"),
+      percentile(row, "fga_per_game")
+    ]),
+    y: avgFinite([
+      percentile(row, "assists_per_36"),
+      percentile(row, "rebounds_per_36"),
+      percentile(row, "stocks_per_36"),
+      percentile(row, "efg_pct"),
+      percentile(row, "role_category_count")
+    ])
+  };
+}
+
+function renderRoleShape(selected) {
+  const container = d3.select("#roleShapeChart");
+  if (container.empty()) return;
+  container.selectAll("*").remove();
+  if (!selected.length) return;
+
+  const width = Math.max(container.node().clientWidth || 560, 420);
+  const height = width < 520 ? 410 : 470;
+  const radius = Math.min(width, height - 112) / 2 - 42;
+  const cx = width / 2;
+  const cy = radius + 52;
+  const angle = d3.scalePoint()
+    .domain(roleShapeMetrics.map(metric => metric.key))
+    .range([0, Math.PI * 2])
+    .padding(.5);
+  const radial = d3.scaleLinear().domain([0, 100]).range([0, radius]);
+  const line = d3.lineRadial()
+    .angle(d => angle(d.key))
+    .radius(d => radial(d.percentile))
+    .curve(d3.curveLinearClosed);
+
+  const series = selected.map(item => ({
+    side: item.side,
+    player: item.row.player,
+    row: item.row,
+    values: roleShapeMetrics.map(metric => ({
+      ...metric,
+      percentile: percentile(item.row, metric.key),
+      actual: item.row[metric.key]
+    }))
+  }));
+
+  const svg = container.append("svg").attr("width", width).attr("height", height).attr("viewBox", `0 0 ${width} ${height}`);
+  const g = svg.append("g").attr("transform", `translate(${cx},${cy})`);
+
+  [25, 50, 75, 100].forEach(ring => {
+    g.append("circle")
+      .attr("class", "radar-ring")
+      .attr("r", radial(ring));
+    g.append("text")
+      .attr("class", "radar-ring-label")
+      .attr("x", 4)
+      .attr("y", -radial(ring) + 4)
+      .text(ring === 100 ? "100th" : ring);
+  });
+
+  roleShapeMetrics.forEach(metric => {
+    const a = angle(metric.key) - Math.PI / 2;
+    const x2 = Math.cos(a) * radius;
+    const y2 = Math.sin(a) * radius;
+    g.append("line")
+      .attr("class", "radar-spoke")
+      .attr("x1", 0)
+      .attr("y1", 0)
+      .attr("x2", x2)
+      .attr("y2", y2);
+    g.append("text")
+      .attr("class", "radar-axis-label")
+      .attr("x", Math.cos(a) * (radius + 18))
+      .attr("y", Math.sin(a) * (radius + 18))
+      .attr("text-anchor", Math.abs(Math.cos(a)) < .25 ? "middle" : (Math.cos(a) > 0 ? "start" : "end"))
+      .attr("dominant-baseline", "middle")
+      .text(metric.label);
+  });
+
+  g.selectAll("path.role-shape")
+    .data(series)
+    .join("path")
+    .attr("class", "role-shape")
+    .attr("d", d => line(d.values))
+    .attr("fill", d => compareColors[d.side])
+    .attr("stroke", d => compareColors[d.side]);
+
+  g.selectAll("g.role-shape-points")
+    .data(series)
+    .join("g")
+    .attr("class", "role-shape-points")
+    .selectAll("circle")
+    .data(d => d.values.map(value => ({ ...value, side: d.side, player: d.player })))
+    .join("circle")
+    .attr("cx", d => Math.cos(angle(d.key) - Math.PI / 2) * radial(d.percentile))
+    .attr("cy", d => Math.sin(angle(d.key) - Math.PI / 2) * radial(d.percentile))
+    .attr("r", 4)
+    .attr("fill", d => compareColors[d.side])
+    .on("mousemove", (event, d) => showTooltip(event, [
+      `<strong>${d.player}</strong>`,
+      `${d.label}: ${Math.round(d.percentile)}th percentile`,
+      `Actual: ${d.format(d.actual)} ${d.unit}`
+    ].join("<br>")))
+    .on("mouseleave", hideTooltip);
+
+  const strip = container.append("div").attr("class", "role-value-strip");
+  roleShapeMetrics.forEach(metric => {
+    const item = strip.append("article");
+    item.append("span").text(metric.label);
+    selected.forEach(selection => {
+      item.append("b")
+        .style("color", compareColors[selection.side])
+        .text(`${selection.side}: ${metric.format(selection.row[metric.key])}`);
+    });
+  });
+}
+
+function renderSimilarityConstellation(selected) {
+  const container = d3.select("#constellationChart");
+  if (container.empty()) return;
+  container.selectAll("*").remove();
+  if (!selected.length) return;
+
+  const width = Math.max(container.node().clientWidth || 560, 420);
+  const height = selected.length > 1 && width < 640 ? 520 : 470;
+  const vertical = selected.length > 1 && width < 640;
+  const svg = container.append("svg").attr("width", width).attr("height", height).attr("viewBox", `0 0 ${width} ${height}`);
+  const color = d3.scaleOrdinal()
+    .domain(successOrder)
+    .range(successOrder.map(bucket => winBucketColors[bucket]));
+
+  selected.forEach((item, clusterIndex) => {
+    const center = vertical
+      ? { x: width / 2, y: (clusterIndex + .62) * height / selected.length }
+      : { x: (clusterIndex + 1) * width / (selected.length + 1), y: height / 2 };
+    const matches = getSimilarRows(item.row, 12);
+    const maxDistance = d3.max(matches, d => d.distance) || 1;
+    const distance = d3.scaleLinear().domain([0, maxDistance]).range([46, width < 520 ? 116 : 150]);
+    const size = d3.scaleSqrt()
+      .domain(d3.extent(matches, d => d.minutes_per_game).filter(Number.isFinite))
+      .range([5, 12]);
+    const nodes = matches.map((match, i) => {
+      const theta = (Math.PI * 2 * i / matches.length) - Math.PI / 2;
+      const r = distance(match.distance);
+      return {
+        ...match,
+        x: center.x + Math.cos(theta) * r,
+        y: center.y + Math.sin(theta) * r
+      };
+    });
+
+    svg.append("g")
+      .attr("class", "constellation-links")
+      .selectAll("line")
+      .data(nodes)
+      .join("line")
+      .attr("x1", center.x)
+      .attr("y1", center.y)
+      .attr("x2", d => d.x)
+      .attr("y2", d => d.y)
+      .attr("stroke-width", d => 1.2 + (1 - d.distance / maxDistance) * 2.4);
+
+    svg.append("circle")
+      .attr("class", "constellation-center")
+      .attr("cx", center.x)
+      .attr("cy", center.y)
+      .attr("r", 16)
+      .attr("fill", compareColors[item.side]);
+
+    svg.append("text")
+      .attr("class", "constellation-center-label")
+      .attr("x", center.x)
+      .attr("y", center.y - 24)
+      .attr("text-anchor", "middle")
+      .text(`${item.side}: ${item.row.player}`);
+
+    svg.append("g")
+      .attr("class", "constellation-nodes")
+      .selectAll("circle")
+      .data(nodes)
+      .join("circle")
+      .attr("cx", d => d.x)
+      .attr("cy", d => d.y)
+      .attr("r", d => size(d.minutes_per_game))
+      .attr("fill", d => color(d.team_success_bucket))
+      .attr("stroke", "#fff")
+      .attr("stroke-width", 1.5)
+      .on("mousemove", (event, d) => showTooltip(event, [
+        `<strong>${d.player}</strong> (${d.year}, ${d.team})`,
+        `Team win %: ${fmtPct(d.win_pct)}`,
+        `Similarity distance: ${d3.format(".2f")(d.distance)}`,
+        `Minutes/game: ${d3.format(".1f")(d.minutes_per_game)}`
+      ].join("<br>")))
+      .on("mouseleave", hideTooltip);
+
+    svg.append("g")
+      .attr("class", "constellation-labels")
+      .selectAll("text")
+      .data(nodes.slice(0, 5))
+      .join("text")
+      .attr("x", d => clamp(d.x + 9, 4, width - 110))
+      .attr("y", d => clamp(d.y + 4, 12, height - 4))
+      .text(d => `${d.player} ${d.year}`);
+  });
+
+  const legend = container.append("div").attr("class", "legend");
+  successOrder.forEach(bucket => {
+    const item = legend.append("span");
+    item.append("i").attr("class", "swatch").style("background", color(bucket));
+    item.append("b").text(bucket);
+  });
+}
+
+function renderWinningBands(selected) {
+  const container = d3.select("#winningBandsChart");
+  if (container.empty()) return;
+  container.selectAll("*").remove();
+  if (!playerRows.length || !selected.length) return;
+
+  const width = Math.max(container.node().clientWidth || 1100, 680);
+  const rowHeight = 50;
+  const height = winningBandMetrics.length * rowHeight + 72;
+  const margin = { top: 22, right: 180, bottom: 40, left: 150 };
+  const innerWidth = width - margin.left - margin.right;
+  const innerHeight = height - margin.top - margin.bottom;
+  const highRows = playerRows.filter(row => row.team_success_bucket === "High-winning teams");
+  const y = d3.scaleBand()
+    .domain(winningBandMetrics.map(metric => metric.key))
+    .range([0, innerHeight])
+    .padding(.24);
+
+  const metricStats = winningBandMetrics.map(metric => {
+    const allValues = playerRows.map(row => row[metric.key]).filter(Number.isFinite).sort(d3.ascending);
+    const highValues = highRows.map(row => row[metric.key]).filter(Number.isFinite).sort(d3.ascending);
+    return {
+      ...metric,
+      domain: d3.extent(allValues),
+      q1: d3.quantile(highValues, .25),
+      median: d3.quantile(highValues, .5),
+      q3: d3.quantile(highValues, .75)
+    };
+  });
+
+  const svg = container.append("svg").attr("width", width).attr("height", height).attr("viewBox", `0 0 ${width} ${height}`);
+  const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+  g.append("g")
+    .attr("class", "axis")
+    .call(d3.axisLeft(y).tickFormat(key => winningBandMetrics.find(metric => metric.key === key).label));
+
+  metricStats.forEach(metric => {
+    const x = d3.scaleLinear().domain(metric.domain).nice().range([0, innerWidth]);
+    const rowY = y(metric.key);
+    const midY = rowY + y.bandwidth() / 2;
+
+    g.append("line")
+      .attr("class", "band-baseline")
+      .attr("x1", 0)
+      .attr("x2", innerWidth)
+      .attr("y1", midY)
+      .attr("y2", midY);
+
+    g.append("rect")
+      .attr("class", "winning-band")
+      .attr("x", x(metric.q1))
+      .attr("y", rowY)
+      .attr("width", Math.max(1, x(metric.q3) - x(metric.q1)))
+      .attr("height", y.bandwidth());
+
+    g.append("line")
+      .attr("class", "winning-band-median")
+      .attr("x1", x(metric.median))
+      .attr("x2", x(metric.median))
+      .attr("y1", rowY - 3)
+      .attr("y2", rowY + y.bandwidth() + 3);
+
+    selected.forEach(selection => {
+      const value = selection.row[metric.key];
+      if (!Number.isFinite(value)) return;
+      g.append("circle")
+        .attr("class", "selected-band-dot")
+        .attr("cx", x(value))
+        .attr("cy", midY + (selection.side === "A" ? -8 : 8))
+        .attr("r", 6)
+        .attr("fill", compareColors[selection.side])
+        .on("mousemove", event => showTooltip(event, [
+          `<strong>Player ${selection.side}: ${selection.row.player}</strong>`,
+          `${metric.label}: ${metric.format(value)} ${metric.unit}`,
+          `High-winning middle band: ${metric.format(metric.q1)} to ${metric.format(metric.q3)}`
+        ].join("<br>")))
+        .on("mouseleave", hideTooltip);
+
+      g.append("text")
+        .attr("class", "winning-band-value")
+        .attr("x", innerWidth + 16)
+        .attr("y", midY + (selection.side === "A" ? -8 : 8))
+        .attr("dy", ".35em")
+        .attr("fill", compareColors[selection.side])
+        .text(`${selection.side}: ${metric.format(value)}`);
+    });
+  });
+
+  g.append("text")
+    .attr("class", "band-caption")
+    .attr("x", 0)
+    .attr("y", innerHeight + 30)
+    .text("Shaded ranges are descriptive benchmarks from high-winning-team player-seasons.");
 }
 
 function renderFingerprintChart(selected) {
@@ -428,6 +894,15 @@ function percentile(row, key) {
   const values = percentileLookup[key] || [];
   if (!values.length || !Number.isFinite(row[key])) return 0;
   return d3.bisectRight(values, row[key]) / values.length * 100;
+}
+
+function avgFinite(values) {
+  const clean = values.filter(Number.isFinite);
+  return clean.length ? d3.mean(clean) : NaN;
+}
+
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
 }
 
 function updateView(viewName) {
