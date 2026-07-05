@@ -53,14 +53,39 @@ const fmtNum = d3.format(",.0f");
 const tooltip = d3.select("#tooltip");
 let appData;
 
-fetch("/api/data")
-  .then(response => response.json())
+const staticBase = (document.body.dataset.staticBase || "/static/").replace(/\/?$/, "/");
+
+function staticUrl(path) {
+  return staticBase + path;
+}
+
+async function fetchJsonFromAny(urls) {
+  let lastError;
+  for (const url of urls) {
+    try {
+      const response = await fetch(url);
+      if (response.ok) {
+        return response.json();
+      }
+      lastError = new Error(`${url} returned ${response.status}`);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError;
+}
+
+fetchJsonFromAny(["/api/data", staticUrl("data/nba_app_data.json")])
   .then(data => {
     appData = data;
     renderMetrics(data.summary);
     renderExamples(data.examples);
     updateView("profileMix");
     d3.select("#viewSelect").on("change", event => updateView(event.target.value));
+  })
+  .catch(error => {
+    d3.select("#barChart").append("p").attr("class", "load-error").text("Unable to load app data.");
+    console.error(error);
   });
 
 function renderMetrics(summary) {

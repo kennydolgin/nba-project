@@ -3,6 +3,7 @@ __pycache__/
 .python_packages/
 .vercel_test_packages/
 server.*.log
+site/
 
 # Local/generated QA and scratch outputs
 outputs/template_sources/

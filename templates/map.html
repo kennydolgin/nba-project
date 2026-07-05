@@ -6,7 +6,7 @@
   <title>NBA Team Context Map</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
-<body>
+<body data-static-base="{{ url_for('static', filename='') }}">
   <header class="topbar">
     <div>
       <p class="eyebrow">D3 map adapted from flask_d3_example</p>

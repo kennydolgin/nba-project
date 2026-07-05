@@ -8,6 +8,12 @@ var stateCodes = {
   VT: "50", VA: "51", WA: "53", WV: "54", WI: "55", WY: "56"
 };
 
+var staticBase = (document.body.getAttribute("data-static-base") || "/static/").replace(/\/?$/, "/");
+
+function staticUrl(path) {
+  return staticBase + path;
+}
+
 var chart = USCloroplethByState()
   .width(760)
   .height(480)
@@ -34,24 +40,34 @@ update(2025);
 
 function update(year) {
   d3.json("/api/map/" + year, function(err, data) {
-    if (err) throw err;
+    if (err || !Array.isArray(data)) {
+      d3.csv(staticUrl("data/team_state_win_pct.csv"), function(csvErr, rows) {
+        if (csvErr) throw csvErr;
+        drawMap(rows.filter(function(row) { return +row.year === +year; }));
+      });
+      return;
+    }
 
-    data.forEach(function(d) {
-      d.id = stateCodes[d.state];
-      d.value = +d.avg_win_pct;
-    });
-
-    chart.colorScale(d3.scaleThreshold()
-      .domain([.25, .35, .45, .50, .55, .60, .65, .70])
-      .range(d3.schemeBlues[9])
-    );
-
-    d3.select("#maps")
-      .datum(data)
-      .call(chart);
-
-    renderTable(data);
+    drawMap(data);
   });
+}
+
+function drawMap(data) {
+  data.forEach(function(d) {
+    d.id = stateCodes[d.state];
+    d.value = +d.avg_win_pct;
+  });
+
+  chart.colorScale(d3.scaleThreshold()
+    .domain([.25, .35, .45, .50, .55, .60, .65, .70])
+    .range(d3.schemeBlues[9])
+  );
+
+  d3.select("#maps")
+    .datum(data)
+    .call(chart);
+
+  renderTable(data);
 }
 
 function renderTable(data) {

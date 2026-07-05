@@ -23,6 +23,11 @@ CSS
 
 /* global d3, topojson */
 
+function staticUrl(path) {
+  var base = (document.body && document.body.getAttribute("data-static-base")) || "/static/";
+  return base.replace(/\/?$/, "/") + path;
+}
+
 function USCloroplethByState() {
 
   var margin = {top: 20, right: 20, bottom: 20, left: 20},
@@ -151,7 +156,7 @@ function USCloroplethByState() {
       var sel = this;
       if (usShapes===null) {
         // If we don't have the geo shapes, load them
-        d3.json("/static/data/us-10m.v1.json", function(error, _us) {
+        d3.json(staticUrl("data/us-10m.v1.json"), function(error, _us) {
           if (error) throw error;
           usShapes = _us;
 
