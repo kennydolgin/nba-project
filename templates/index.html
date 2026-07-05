@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Beyond Points Per Game</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=compare3">
 </head>
 <body data-static-base="{{ url_for('static', filename='') }}">
   <header class="topbar">
@@ -20,6 +20,67 @@
   </header>
 
   <main>
+    <section class="compare-workbench" aria-label="Player comparison workbench">
+      <div class="panel compare-controls-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Player comparison</p>
+            <h2>Which player-season profile looks more like winning basketball?</h2>
+          </div>
+          <p>Compare two player-seasons against league percentiles and similar historical player-seasons. This is association, not proof of causation.</p>
+        </div>
+
+        <div class="compare-controls" aria-label="Player comparison controls">
+          <label for="playerAInput">Player A</label>
+          <input id="playerAInput" list="playerOptions" autocomplete="off">
+          <label for="seasonASelect">Season</label>
+          <select id="seasonASelect"></select>
+
+          <label for="playerBInput">Player B</label>
+          <input id="playerBInput" list="playerOptions" autocomplete="off">
+          <label for="seasonBSelect">Season</label>
+          <select id="seasonBSelect"></select>
+        </div>
+        <datalist id="playerOptions"></datalist>
+      </div>
+
+      <div id="comparisonInsight" class="comparison-insight"></div>
+      <div id="playerCards" class="player-card-grid"></div>
+
+      <section class="panel fingerprint-panel" aria-label="Role fingerprint comparison">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Role fingerprint</p>
+            <h2>Percentile profile across winning-relevant stats</h2>
+          </div>
+          <p>Percentiles compare each selected player-season with all reviewed player-seasons in this dataset.</p>
+        </div>
+        <div id="fingerprintChart" class="chart fingerprint-chart"></div>
+      </section>
+
+      <section class="layout compact-layout">
+        <div class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Similarity context</p>
+              <h2>How similar player-seasons tended to win</h2>
+            </div>
+          </div>
+          <div id="similarContext"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Closest matches</p>
+              <h2>Historical seasons with a similar statistical shape</h2>
+            </div>
+          </div>
+          <div id="similarTable"></div>
+        </div>
+      </section>
+    </section>
+
     <section class="metrics" aria-label="Project summary metrics">
       <article>
         <span id="metricRows">--</span>
@@ -82,7 +143,7 @@
 
   <div id="tooltip" role="status" aria-live="polite"></div>
 
-  <script src="{{ url_for('static', filename='vendor/d3.v7.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/d3.v7.min.js') }}?v=compare3"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}?v=compare3"></script>
 </body>
 </html>

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>NBA Team Context Map</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=compare3">
 </head>
 <body data-static-base="{{ url_for('static', filename='') }}">
   <header class="topbar">
@@ -47,10 +47,10 @@
     </section>
   </main>
 
-  <script src="{{ url_for('static', filename='vendor/d3.v4.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='vendor/d3-scale-chromatic.v1.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='vendor/topojson.v2.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/USCloroplethByState.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/map.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/d3.v4.min.js') }}?v=compare3"></script>
+  <script src="{{ url_for('static', filename='vendor/d3-scale-chromatic.v1.min.js') }}?v=compare3"></script>
+  <script src="{{ url_for('static', filename='vendor/topojson.v2.min.js') }}?v=compare3"></script>
+  <script src="{{ url_for('static', filename='js/USCloroplethByState.js') }}?v=compare3"></script>
+  <script src="{{ url_for('static', filename='js/map.js') }}?v=compare3"></script>
 </body>
 </html>

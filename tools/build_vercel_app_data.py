@@ -18,6 +18,19 @@ TEAM_STATES = {
     "WAS": "DC",
 }
 
+TEXT_FIELDS = {
+    "player",
+    "team",
+    "pos",
+    "position_group",
+    "age_group",
+    "team_success_bucket",
+    "profile_group",
+    "efficient_lower_shot_label",
+    "defensive_event_profile",
+}
+INTEGER_FIELDS = {"year", "age", "games", "games_started", "role_category_count"}
+
 
 def read_rows(path):
     with path.open(newline="", encoding="utf-8") as handle:
@@ -40,7 +53,10 @@ def slim_rows(rows, fields, limit=None):
         for field in fields:
             value = row.get(field, "")
             number = as_float(value)
-            clean[field] = number if number is not None and field not in {"player", "team", "pos", "position_group", "team_success_bucket", "profile_group", "defensive_event_profile"} else value
+            if number is not None and field not in TEXT_FIELDS:
+                clean[field] = int(number) if field in INTEGER_FIELDS else round(number, 3)
+            else:
+                clean[field] = value
         result.append(clean)
     return result
 
@@ -81,12 +97,32 @@ def build_map_csv():
             })
 
 
+PLAYER_SEASON_FIELDS = [
+    "year", "player", "team", "pos", "position_group",
+    "minutes_per_game", "points_per_game", "points_per_36", "fga_per_game", "efg_pct",
+    "assists_per_36", "rebounds_per_36", "stocks_per_36", "turnovers_per_36",
+    "role_category_count", "win_pct",
+    "team_success_bucket", "profile_group", "efficient_lower_shot_label",
+    "defensive_event_profile",
+]
+
+
+def build_player_seasons_csv(rows):
+    out_path = STATIC_DATA / "player_seasons.csv"
+    slimmed = slim_rows(rows, PLAYER_SEASON_FIELDS)
+    with out_path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=PLAYER_SEASON_FIELDS)
+        writer.writeheader()
+        writer.writerows(slimmed)
+
+
 def build_app_json():
     profile_mix = read_rows(TABLES / "top3_h1_profile_mix_by_success_bucket.csv")
     efficient = read_rows(TABLES / "top3_h2_efficient_lower_shot_share.csv")
     defense = read_rows(TABLES / "top3_h3_steals_blocks_scoring_overlap.csv")
 
     scoring_scatter = sample_evenly(read_rows(TABLES / "top3_h1_player_scatter_data.csv"))
+    player_seasons = read_rows(TABLES / "top3_h1_player_scatter_data.csv")
     efficiency_scatter = sample_evenly(read_rows(TABLES / "top3_h2_efficiency_scatter_data.csv"))
     defense_scatter = sample_evenly(read_rows(TABLES / "top3_h3_scoring_steals_blocks_scatter_data.csv"))
 
@@ -134,8 +170,10 @@ def build_app_json():
         "examples": examples,
     }
 
+    build_player_seasons_csv(player_seasons)
+
     with (STATIC_DATA / "nba_app_data.json").open("w", encoding="utf-8") as handle:
-        json.dump(app_data, handle, indent=2)
+        json.dump(app_data, handle, separators=(",", ":"))
 
 
 def main():
