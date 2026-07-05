@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.python_packages/
+.vercel_test_packages/
+server.*.log
+
+# Local/generated QA and scratch outputs
+outputs/template_sources/
+outputs/logs/
+outputs/qa_docx/
+outputs/qa_presentation_notes/
+outputs/Beyond_Points_Per_Game_Midterm_Standards_Ready/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/

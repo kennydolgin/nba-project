@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NBA Team Context Map</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">D3 map adapted from flask_d3_example</p>
+      <h1>NBA Team Context Map</h1>
+      <p class="lede">A state-level map of NBA team win percentage by season. States with multiple teams use the average of those teams.</p>
+    </div>
+    <nav aria-label="Primary">
+      <a href="/">Role explorer</a>
+      <a href="/map">Team map</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="control-strip" aria-label="Map controls">
+      <label for="yearSlider">Season</label>
+      <input id="yearSlider" type="range" min="2010" max="2025" value="2025">
+      <strong id="yearSliderLabel">2025</strong>
+    </section>
+
+    <section class="layout map-layout">
+      <div class="panel chart-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Team success geography</p>
+            <h2>Average team win percentage by state</h2>
+          </div>
+          <p>White states have no NBA team in the selected season.</p>
+        </div>
+        <div id="maps" class="map-frame"></div>
+      </div>
+
+      <aside class="panel insight-panel">
+        <p class="eyebrow">How this mirrors the class example</p>
+        <h2>Backend filters, frontend renders</h2>
+        <p>The Flask route <code>/api/map/&lt;year&gt;</code> returns only the selected season. D3 receives JSON, joins values to US map shapes, and recolors the states.</p>
+        <div id="mapTable"></div>
+      </aside>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='vendor/d3.v4.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/d3-scale-chromatic.v1.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/topojson.v2.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/USCloroplethByState.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/map.js') }}"></script>
+</body>
+</html>

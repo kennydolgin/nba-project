@@ -1,0 +1,21 @@
+.git/
+.agents/
+.python_packages/
+.vercel_test_packages/
+__pycache__/
+*.pyc
+server.*.log
+
+# Keep the deployment under Vercel's Python function limits.
+outputs/
+tools/
+*.ipynb
+Games.csv
+NBA Player Stats and Salaries_2010-2025.csv
+build_*.py
+regenerate_*.py
+
+# Local editor/system files
+.DS_Store
+Thumbs.db
+.vscode/
