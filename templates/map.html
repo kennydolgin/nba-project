@@ -9,7 +9,7 @@
 <body data-static-base="{{ url_for('static', filename='') }}">
   <header class="topbar">
     <div>
-      <p class="eyebrow">D3 map adapted from flask_d3_example</p>
+      <p class="eyebrow">Team success geography</p>
       <h1>NBA Team Context Map</h1>
       <p class="lede">A state-level map of NBA team win percentage by season. States with multiple teams use the average of those teams.</p>
     </div>
@@ -40,9 +40,9 @@
       </div>
 
       <aside class="panel insight-panel">
-        <p class="eyebrow">How this mirrors the class example</p>
-        <h2>Backend filters, frontend renders</h2>
-        <p>The Flask route <code>/api/map/&lt;year&gt;</code> returns only the selected season. D3 receives JSON, joins values to US map shapes, and recolors the states.</p>
+        <p class="eyebrow">Map methodology</p>
+        <h2>Season filter, state-level context</h2>
+        <p>The selected season is joined to US map shapes by state. States with multiple NBA teams show the average team win percentage for that season.</p>
         <div id="mapTable"></div>
       </aside>
     </section>
