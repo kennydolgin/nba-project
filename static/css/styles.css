@@ -622,6 +622,103 @@ input[list] {
   text-transform: uppercase;
 }
 
+.methodology-page {
+  max-width: 1120px;
+}
+
+.methodology-hero {
+  margin-bottom: 18px;
+}
+
+.methodology-hero h2 {
+  max-width: 820px;
+  font-size: 28px;
+}
+
+.methodology-hero p {
+  max-width: 880px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.methodology-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.methodology-grid .panel {
+  min-height: 170px;
+}
+
+.method-number {
+  display: block;
+  color: var(--blue);
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.methodology-grid h2,
+.methodology-card h2 {
+  margin: 8px 0 8px;
+}
+
+.methodology-grid p,
+.methodology-card p {
+  margin: 0 0 10px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.methodology-layout {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.method-table-wrap {
+  overflow-x: auto;
+}
+
+.method-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.method-table th,
+.method-table td {
+  border-bottom: 1px solid var(--line);
+  padding: 11px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.method-table th {
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.method-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.method-list article {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 14px;
+  background: #f8fafc;
+}
+
+.method-list h3 {
+  margin: 0 0 6px;
+  font-size: 17px;
+}
+
 code {
   background: #eef2f7;
   border-radius: 4px;
@@ -637,7 +734,10 @@ code {
 
   .metrics,
   .layout,
-  .player-card-grid {
+  .player-card-grid,
+  .methodology-grid,
+  .methodology-layout,
+  .method-list {
     grid-template-columns: 1fr;
   }
 

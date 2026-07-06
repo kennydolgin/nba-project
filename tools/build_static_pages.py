@@ -18,6 +18,7 @@ def render_template(name, output_name):
     )
     html = html.replace('href="/"', 'href="index.html"')
     html = html.replace('href="/map"', 'href="map.html"')
+    html = html.replace('href="/methodology"', 'href="methodology.html"')
     (SITE / output_name).write_text(html, encoding="utf-8")
 
 
@@ -32,6 +33,7 @@ def main():
     (SITE / ".nojekyll").write_text("", encoding="utf-8")
     render_template("index.html", "index.html")
     render_template("map.html", "map.html")
+    render_template("methodology.html", "methodology.html")
 
 
 if __name__ == "__main__":

@@ -31,6 +31,11 @@ def map_view():
     return render_template("map.html")
 
 
+@app.route("/methodology")
+def methodology():
+    return render_template("methodology.html")
+
+
 @app.route("/api/data")
 def app_data():
     return jsonify(read_json("nba_app_data.json"))
