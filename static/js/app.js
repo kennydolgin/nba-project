@@ -615,14 +615,21 @@ function renderSimilarityConstellation(selected) {
       .attr("cx", center.x)
       .attr("cy", center.y)
       .attr("r", 16)
-      .attr("fill", compareColors[item.side]);
+      .attr("fill", compareColors[item.side])
+      .on("mousemove", event => showTooltip(event, [
+        `<strong>Player ${item.side}: ${item.row.player}</strong>`,
+        `${item.row.year} ${item.row.team}`,
+        `Team win %: ${fmtPct(item.row.win_pct)}`
+      ].join("<br>")))
+      .on("mouseleave", hideTooltip);
 
     svg.append("text")
       .attr("class", "constellation-center-label")
       .attr("x", center.x)
-      .attr("y", center.y - 24)
+      .attr("y", center.y)
       .attr("text-anchor", "middle")
-      .text(`${item.side}: ${shortPlayerLabel(item.row.player)}`);
+      .attr("dy", ".35em")
+      .text(item.side);
 
     svg.append("g")
       .attr("class", "constellation-nodes")
@@ -643,16 +650,6 @@ function renderSimilarityConstellation(selected) {
       ].join("<br>")))
       .on("mouseleave", hideTooltip);
 
-    svg.append("g")
-      .attr("class", "constellation-labels")
-      .selectAll("text")
-      .data(nodes.slice(0, compact ? 2 : 4))
-      .join("text")
-      .attr("class", "label-halo")
-      .attr("x", d => clamp(d.x + (Math.cos(d.theta) >= 0 ? 9 : -9), 16, width - 16))
-      .attr("y", d => clamp(d.y + 4, 14, height - 8))
-      .attr("text-anchor", d => Math.cos(d.theta) >= 0 ? "start" : "end")
-      .text(d => `${shortPlayerLabel(d.player)} ${d.year}`);
   });
 
   const legend = container.append("div").attr("class", "legend");
