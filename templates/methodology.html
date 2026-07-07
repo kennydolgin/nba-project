@@ -140,8 +140,8 @@
         <h2>Profile groups and examples</h2>
         <p><strong>Role labels</strong> are the small tags on each player card. They come from three fields: <code>profile_group</code>, <code>efficient_lower_shot_label</code>, and <code>defensive_event_profile</code>.</p>
         <p><code>profile_group</code> uses <code>role_category_count</code>: 0-1 dimensions is <strong>Narrow profile</strong>, 2-3 is <strong>Mixed profile</strong>, and 4-6 is <strong>Balanced profile</strong>.</p>
-        <p><code>efficient_lower_shot_label</code> is <strong>Efficient lower-shot player</strong> when a player-season is at or above median eFG% and below median FGA/game. Otherwise it is <strong>Other core player</strong>.</p>
-        <p><code>defensive_event_profile</code> compares top-quartile scoring with top-quartile steals-plus-blocks production. Labels include <strong>Top steals + blocks + top scorer</strong>, <strong>Top steals + blocks, not top scorer</strong>, <strong>Top scorer, not top steals + blocks</strong>, and <strong>Other core player</strong>.</p>
+        <p><code>efficient_lower_shot_label</code> is <strong>Efficient lower-shot player</strong> when a player-season is at or above median eFG% and below median FGA/game. On the player cards, rows outside that condition appear as <strong>Standard shot profile</strong>.</p>
+        <p><code>defensive_event_profile</code> compares top-quartile scoring with top-quartile steals-plus-blocks production. Labels include <strong>Top steals + blocks + top scorer</strong>, <strong>Top steals + blocks, not top scorer</strong>, <strong>Top scorer, not top steals + blocks</strong>, and, on the player cards, <strong>Standard event profile</strong> for rows outside those top-quartile categories.</p>
       </article>
 
       <article class="panel methodology-card">
@@ -301,7 +301,7 @@
             </tr>
             <tr>
               <td><strong>Core player</strong></td>
-              <td>A broad label used in the role tags. In the app, "Other core player" means the row did not meet the efficient-lower-shot or defensive-event label condition currently being shown.</td>
+              <td>A broad fallback label used in some aggregate charts. On player cards this is written more specifically as "Standard shot profile" or "Standard event profile" so the category is clear.</td>
             </tr>
             <tr>
               <td><strong>Share of bucket</strong></td>

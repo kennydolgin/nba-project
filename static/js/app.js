@@ -307,9 +307,9 @@ function renderPlayerCards(selected) {
         </dl>
         <div class="badge-row">
           <strong class="badge-label">Role labels</strong>
-          <span>${escapeHtml(row.profile_group || "Unlabeled")}</span>
-          <span>${escapeHtml(row.efficient_lower_shot_label || "Other core player")}</span>
-          <span>${escapeHtml(row.defensive_event_profile || "Other core player")}</span>
+          ${roleBadge("Profile", row.profile_group || "Unlabeled")}
+          ${roleBadge("Shot role", shotRoleLabel(row.efficient_lower_shot_label))}
+          ${roleBadge("Event role", eventRoleLabel(row.defensive_event_profile))}
         </div>
       `;
     });
@@ -941,6 +941,20 @@ function shortPlayerLabel(name) {
   const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
   if (parts.length <= 1) return parts[0] || "";
   return parts[parts.length - 1];
+}
+
+function roleBadge(category, value) {
+  return `<span class="role-badge"><b>${escapeHtml(category)}</b>${escapeHtml(value)}</span>`;
+}
+
+function shotRoleLabel(value) {
+  if (!value || value === "Other core player") return "Standard shot profile";
+  return value;
+}
+
+function eventRoleLabel(value) {
+  if (!value || value === "Other core player") return "Standard event profile";
+  return value;
 }
 
 function selectedUniverseLabels(rows, xScale, yScale, innerWidth, innerHeight) {

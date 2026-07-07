@@ -292,6 +292,19 @@ input[list] {
   font-weight: 700;
 }
 
+.role-badge {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.role-badge b {
+  color: var(--ink);
+  font-size: 11px;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+
 .fingerprint-panel {
   margin-bottom: 22px;
 }
