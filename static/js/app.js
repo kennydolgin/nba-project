@@ -127,10 +127,14 @@ fetchJsonFromAny(["/api/data", staticUrl("data/nba_app_data.json")])
       .map(normalizePlayerRow)
       .filter(row => row.player && Number.isFinite(row.win_pct));
     buildPlayerState();
-    renderMetrics(data.summary);
     initPlayerComparison();
-    updateView("profileMix");
-    d3.select("#viewSelect").on("change", event => updateView(event.target.value));
+    if (d3.select("#metricRows").node()) {
+      renderMetrics(data.summary);
+    }
+    if (d3.select("#viewSelect").node()) {
+      updateView("profileMix");
+      d3.select("#viewSelect").on("change", event => updateView(event.target.value));
+    }
   })
   .catch(error => {
     d3.select("#barChart").append("p").attr("class", "load-error").text("Unable to load app data.");

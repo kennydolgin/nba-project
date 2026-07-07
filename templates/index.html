@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Beyond Points Per Game</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=galaxy2">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=galaxy3">
 </head>
 <body data-static-base="{{ url_for('static', filename='') }}">
   <header class="topbar">
@@ -132,69 +132,11 @@
       </section>
     </section>
 
-    <section class="metrics" aria-label="Project summary metrics">
-      <article>
-        <span id="metricRows">--</span>
-        <p>player-season records</p>
-      </article>
-      <article>
-        <span id="metricTeams">--</span>
-        <p>team seasons with context</p>
-      </article>
-      <article>
-        <span id="metricEfficient">--</span>
-        <p>efficient lower-shot share on strong teams</p>
-      </article>
-      <article>
-        <span id="metricDefense">--</span>
-        <p>top stocks seasons that were not top scorers</p>
-      </article>
-    </section>
-
-    <section class="control-strip" aria-label="Visualization controls">
-      <label for="viewSelect">Summary question</label>
-      <select id="viewSelect">
-        <option value="profileMix">How do profile types differ by team success?</option>
-        <option value="efficientLowerShot">Are efficient lower-shot contributors more common on stronger teams?</option>
-        <option value="defenseOverlap">How often do defensive-event leaders also score heavily?</option>
-      </select>
-    </section>
-
-    <section class="layout">
-      <div class="panel chart-panel">
-        <div class="panel-heading">
-          <div>
-            <p class="eyebrow">Summary view</p>
-            <h2 id="barTitle">Profile mix by team success</h2>
-          </div>
-          <p id="barNote">Shares are computed within each team-success bucket.</p>
-        </div>
-        <div id="barChart" class="chart"></div>
-      </div>
-
-      <aside class="panel insight-panel">
-        <p class="eyebrow">Interpretation guardrail</p>
-        <h2>Association, not causation</h2>
-        <p>The charts compare player-season role patterns with team context. They do not prove that any single role caused a team to win.</p>
-        <div id="examples"></div>
-      </aside>
-    </section>
-
-    <section class="panel">
-      <div class="panel-heading">
-        <div>
-          <p class="eyebrow">Player-season evidence</p>
-          <h2 id="scatterTitle">Scoring volume versus team win percentage</h2>
-        </div>
-        <p>Hover points to inspect player-season details.</p>
-      </div>
-      <div id="scatterPlot" class="chart tall"></div>
-    </section>
   </main>
 
   <div id="tooltip" role="status" aria-live="polite"></div>
 
-  <script src="{{ url_for('static', filename='vendor/d3.v7.min.js') }}?v=galaxy2"></script>
-  <script src="{{ url_for('static', filename='js/app.js') }}?v=galaxy2"></script>
+  <script src="{{ url_for('static', filename='vendor/d3.v7.min.js') }}?v=galaxy3"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}?v=galaxy3"></script>
 </body>
 </html>

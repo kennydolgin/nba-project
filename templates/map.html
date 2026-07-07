@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>NBA Team Context Map</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=compare3">
+  <title>NBA Team Context Explorer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=compare4">
 </head>
 <body data-static-base="{{ url_for('static', filename='') }}">
   <header class="topbar">
     <div>
       <p class="eyebrow">Team success geography</p>
-      <h1>NBA Team Context Map</h1>
-      <p class="lede">A state-level map of NBA team win percentage by season. States with multiple teams use the average of those teams.</p>
+      <h1>NBA Team Context Explorer</h1>
+      <p class="lede">Explore team win geography and broader player-role patterns by team success bucket.</p>
     </div>
     <nav aria-label="Primary">
       <a href="/">Role explorer</a>
@@ -46,12 +46,74 @@
         <div id="mapTable"></div>
       </aside>
     </section>
+
+    <section class="metrics" aria-label="Project summary metrics">
+      <article>
+        <span id="metricRows">--</span>
+        <p>player-season records</p>
+      </article>
+      <article>
+        <span id="metricTeams">--</span>
+        <p>team seasons with context</p>
+      </article>
+      <article>
+        <span id="metricEfficient">--</span>
+        <p>efficient lower-shot share on strong teams</p>
+      </article>
+      <article>
+        <span id="metricDefense">--</span>
+        <p>top stocks seasons that were not top scorers</p>
+      </article>
+    </section>
+
+    <section class="control-strip" aria-label="Visualization controls">
+      <label for="viewSelect">Summary question</label>
+      <select id="viewSelect">
+        <option value="profileMix">How do profile types differ by team success?</option>
+        <option value="efficientLowerShot">Are efficient lower-shot contributors more common on stronger teams?</option>
+        <option value="defenseOverlap">How often do defensive-event leaders also score heavily?</option>
+      </select>
+    </section>
+
+    <section class="layout">
+      <div class="panel chart-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Summary view</p>
+            <h2 id="barTitle">Profile mix by team success</h2>
+          </div>
+          <p id="barNote">Shares are computed within each team-success bucket.</p>
+        </div>
+        <div id="barChart" class="chart"></div>
+      </div>
+
+      <aside class="panel insight-panel">
+        <p class="eyebrow">Interpretation guardrail</p>
+        <h2>Association, not causation</h2>
+        <p>The charts compare player-season role patterns with team context. They do not prove that any single role caused a team to win.</p>
+        <div id="examples"></div>
+      </aside>
+    </section>
+
+    <section class="panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Player-season evidence</p>
+          <h2 id="scatterTitle">Scoring volume versus team win percentage</h2>
+        </div>
+        <p>Hover points to inspect player-season details.</p>
+      </div>
+      <div id="scatterPlot" class="chart tall"></div>
+    </section>
   </main>
 
-  <script src="{{ url_for('static', filename='vendor/d3.v4.min.js') }}?v=compare3"></script>
-  <script src="{{ url_for('static', filename='vendor/d3-scale-chromatic.v1.min.js') }}?v=compare3"></script>
-  <script src="{{ url_for('static', filename='vendor/topojson.v2.min.js') }}?v=compare3"></script>
-  <script src="{{ url_for('static', filename='js/USCloroplethByState.js') }}?v=compare3"></script>
-  <script src="{{ url_for('static', filename='js/map.js') }}?v=compare3"></script>
+  <div id="tooltip" role="status" aria-live="polite"></div>
+
+  <script src="{{ url_for('static', filename='vendor/d3.v4.min.js') }}?v=compare4"></script>
+  <script src="{{ url_for('static', filename='vendor/d3-scale-chromatic.v1.min.js') }}?v=compare4"></script>
+  <script src="{{ url_for('static', filename='vendor/topojson.v2.min.js') }}?v=compare4"></script>
+  <script src="{{ url_for('static', filename='js/USCloroplethByState.js') }}?v=compare4"></script>
+  <script src="{{ url_for('static', filename='js/map.js') }}?v=compare4"></script>
+  <script src="{{ url_for('static', filename='js/team_explorer.js') }}?v=team1"></script>
 </body>
 </html>
