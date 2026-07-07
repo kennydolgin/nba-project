@@ -864,10 +864,30 @@ function renderSimilarityContext(selected) {
   table.selectAll("*").remove();
 
   selected.forEach(item => {
-    const summary = getSimilaritySummary(item.row);
+    const matches = getSimilarRows(item.row, 40);
+    const summary = summarizeSimilarityMatches(matches, item.row);
+    const closest = matches[0];
     const block = context.append("article").attr("class", "similarity-block");
     block.append("h3").text(`${item.row.player}, ${item.row.year} ${item.row.team}`);
-    block.append("p").html(`Nearest ${summary.count} comparable player-seasons: <strong>${fmtPct(summary.medianWin)}</strong> median team win %, with <strong>${fmtPct(summary.highShare)}</strong> on high-winning teams.`);
+    block.append("p").html(`Nearest ${summary.count} comparable player-seasons had a <strong>${fmtPct(summary.medianWin)}</strong> median team win %, with <strong>${fmtPct(summary.highShare)}</strong> on high-winning teams.`);
+
+    const stats = block.append("dl").attr("class", "similarity-stat-grid");
+    [
+      ["Team win %", fmtPct(item.row.win_pct)],
+      ["Comparable median", fmtPct(summary.medianWin)],
+      ["Strong-team share", fmtPct(summary.highShare)],
+      ["Closest distance", closest ? d3.format(".2f")(closest.distance) : "--"]
+    ].forEach(([label, value]) => {
+      const cell = stats.append("div");
+      cell.append("dt").text(label);
+      cell.append("dd").text(value);
+    });
+
+    if (closest) {
+      block.append("p")
+        .attr("class", "closest-note")
+        .html(`Closest profile: <strong>${escapeHtml(closest.player)} (${closest.year} ${escapeHtml(closest.team)})</strong>, ${fmtPct(closest.win_pct)} team win %.`);
+    }
   });
 
   selected.forEach(item => {
@@ -886,6 +906,10 @@ function renderSimilarityContext(selected) {
 
 function getSimilaritySummary(row) {
   const matches = getSimilarRows(row, 40);
+  return summarizeSimilarityMatches(matches, row);
+}
+
+function summarizeSimilarityMatches(matches, row) {
   return {
     count: matches.length,
     medianWin: d3.median(matches, d => d.win_pct) || row.win_pct,
