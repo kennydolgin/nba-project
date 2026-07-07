@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Beyond Points Per Game</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=galaxy1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=galaxy2">
 </head>
 <body data-static-base="{{ url_for('static', filename='') }}">
   <header class="topbar">
@@ -28,19 +28,23 @@
             <p class="eyebrow">Player comparison</p>
             <h2>Which player-season profile looks more like winning basketball?</h2>
           </div>
-          <p>Compare two player-seasons against league percentiles and similar historical player-seasons. This is association, not proof of causation.</p>
+          <p>Select two player-seasons, then compare role shape, statistical neighbors, and team context. Results are descriptive, not causal rankings.</p>
         </div>
 
         <div class="compare-controls" aria-label="Player comparison controls">
-          <label for="playerAInput">Player A</label>
-          <input id="playerAInput" list="playerOptions" autocomplete="off">
-          <label for="seasonASelect">Season</label>
-          <select id="seasonASelect"></select>
+          <div class="compare-control-group">
+            <label for="playerAInput">Player A</label>
+            <input id="playerAInput" list="playerOptions" autocomplete="off">
+            <label for="seasonASelect">Season</label>
+            <select id="seasonASelect"></select>
+          </div>
 
-          <label for="playerBInput">Player B</label>
-          <input id="playerBInput" list="playerOptions" autocomplete="off">
-          <label for="seasonBSelect">Season</label>
-          <select id="seasonBSelect"></select>
+          <div class="compare-control-group">
+            <label for="playerBInput">Player B</label>
+            <input id="playerBInput" list="playerOptions" autocomplete="off">
+            <label for="seasonBSelect">Season</label>
+            <select id="seasonBSelect"></select>
+          </div>
         </div>
         <datalist id="playerOptions"></datalist>
       </div>
@@ -51,10 +55,10 @@
       <section class="panel universe-panel" aria-label="Winning profile galaxy">
         <div class="panel-heading">
           <div>
-            <p class="eyebrow">Winning profile galaxy</p>
-            <h2>Winning-associated value is not only points</h2>
+            <p class="eyebrow">Role map</p>
+            <h2>Player-seasons by scoring load and role breadth</h2>
           </div>
-          <p>Each point is a player-season. X blends scoring and shot volume; Y blends creation, rebounding, defensive events, efficiency, and role breadth. Color shows team win context.</p>
+          <p>Each point is one player-season. Horizontal position shows scoring load; vertical position shows non-scoring contribution. Color shows team win context.</p>
         </div>
         <div id="roleUniverseChart" class="chart universe-chart"></div>
       </section>
@@ -66,7 +70,7 @@
               <p class="eyebrow">Archetype radar</p>
               <h2>Role shape for the selected seasons</h2>
             </div>
-            <p>Spokes use percentile rank; the value strip keeps the underlying stats visible.</p>
+            <p>Each spoke is a league percentile. The value strip keeps the underlying box-score stats visible.</p>
           </div>
           <div id="roleShapeChart" class="chart role-shape-chart"></div>
         </div>
@@ -77,7 +81,7 @@
               <p class="eyebrow">Similar seasons constellation</p>
               <h2>Closest historical player-season neighbors</h2>
             </div>
-            <p>Distance reflects statistical similarity, not player quality or causal impact.</p>
+            <p>Nearby names had similar statistical profiles. Distance does not measure player quality or causal impact.</p>
           </div>
           <div id="constellationChart" class="chart constellation-chart"></div>
         </div>
@@ -86,10 +90,10 @@
       <section class="panel winning-bands-panel" aria-label="Winning bands benchmark overlay">
         <div class="panel-heading">
           <div>
-            <p class="eyebrow">Winning bands</p>
-            <h2>Where selected seasons sit against high-winning-team benchmarks</h2>
+            <p class="eyebrow">High-winning benchmark bands</p>
+            <h2>Where selected seasons sit against strong-team ranges</h2>
           </div>
-          <p>Shaded bands show the middle half of high-winning-team player-seasons for each metric.</p>
+          <p>Shaded bands show the middle half of player-seasons from high-winning teams for each metric.</p>
         </div>
         <div id="winningBandsChart" class="chart winning-bands-chart"></div>
       </section>
@@ -98,7 +102,7 @@
         <div class="panel-heading">
           <div>
             <p class="eyebrow">Role fingerprint</p>
-            <h2>Percentile profile across winning-relevant stats</h2>
+            <h2>Percentile profile by metric</h2>
           </div>
           <p>Percentiles compare each selected player-season with all reviewed player-seasons in this dataset.</p>
         </div>
@@ -109,8 +113,8 @@
         <div class="panel">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Similarity context</p>
-              <h2>How similar player-seasons tended to win</h2>
+              <p class="eyebrow">Similar-season context</p>
+              <h2>How comparable seasons lined up with winning</h2>
             </div>
           </div>
           <div id="similarContext"></div>
@@ -131,24 +135,24 @@
     <section class="metrics" aria-label="Project summary metrics">
       <article>
         <span id="metricRows">--</span>
-        <p>team-specific player-season rows</p>
+        <p>player-season records</p>
       </article>
       <article>
         <span id="metricTeams">--</span>
-        <p>team-season records</p>
+        <p>team seasons with context</p>
       </article>
       <article>
         <span id="metricEfficient">--</span>
-        <p>efficient lower-shot share on high-winning teams</p>
+        <p>efficient lower-shot share on strong teams</p>
       </article>
       <article>
         <span id="metricDefense">--</span>
-        <p>top steals + blocks seasons that were not top scoring seasons</p>
+        <p>top stocks seasons that were not top scorers</p>
       </article>
     </section>
 
     <section class="control-strip" aria-label="Visualization controls">
-      <label for="viewSelect">Question</label>
+      <label for="viewSelect">Summary question</label>
       <select id="viewSelect">
         <option value="profileMix">How do profile types differ by team success?</option>
         <option value="efficientLowerShot">Are efficient lower-shot contributors more common on stronger teams?</option>
@@ -190,7 +194,7 @@
 
   <div id="tooltip" role="status" aria-live="polite"></div>
 
-  <script src="{{ url_for('static', filename='vendor/d3.v7.min.js') }}?v=galaxy1"></script>
-  <script src="{{ url_for('static', filename='js/app.js') }}?v=galaxy1"></script>
+  <script src="{{ url_for('static', filename='vendor/d3.v7.min.js') }}?v=galaxy2"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}?v=galaxy2"></script>
 </body>
 </html>

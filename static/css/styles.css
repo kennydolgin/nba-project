@@ -72,7 +72,7 @@ nav a {
 main {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 24px 28px 48px;
+  padding: 28px 28px 52px;
 }
 
 .metrics {
@@ -112,13 +112,15 @@ main {
 .control-strip {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 18px;
-  padding: 14px 16px;
+  gap: 14px;
+  margin-bottom: 22px;
+  padding: 16px 18px;
 }
 
 label {
+  display: block;
   font-weight: 800;
+  line-height: 1.25;
 }
 
 select,
@@ -138,27 +140,46 @@ input[list] {
 }
 
 .compare-workbench {
-  margin-bottom: 22px;
+  margin-bottom: 26px;
 }
 
 .compare-controls-panel {
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 .compare-controls {
   display: grid;
-  grid-template-columns: max-content minmax(180px, 1fr) max-content minmax(150px, 220px);
-  gap: 10px 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+
+.compare-control-group {
+  display: grid;
+  grid-template-columns: minmax(170px, 1fr) minmax(150px, 220px);
+  gap: 8px 12px;
   align-items: center;
+  border: 1px solid #e5eaf2;
+  border-radius: 8px;
+  padding: 14px;
+  background: #fbfcff;
+}
+
+.compare-control-group label {
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .03em;
 }
 
 .comparison-insight {
-  margin: 0 0 14px;
-  padding: 12px 14px;
+  margin: 0 0 16px;
+  padding: 14px 16px;
   border-left: 4px solid var(--green);
   background: #edf6f1;
   color: var(--ink);
   line-height: 1.45;
+  border-radius: 0 8px 8px 0;
 }
 
 .comparison-insight p {
@@ -168,15 +189,15 @@ input[list] {
 .player-card-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-  margin-bottom: 18px;
+  gap: 16px;
+  margin-bottom: 22px;
 }
 
 .player-card {
   background: #fff;
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 18px;
+  padding: 18px 18px 16px;
 }
 
 .player-card.side-a {
@@ -217,18 +238,26 @@ input[list] {
 .stat-list {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  margin: 0 0 14px;
+  gap: 12px;
+  margin: 0 0 16px;
 }
 
 .stat-list div {
   min-width: 0;
+  border-left: 1px solid var(--line);
+  padding-left: 10px;
+}
+
+.stat-list div:first-child {
+  border-left: 0;
+  padding-left: 0;
 }
 
 .stat-list dt {
   color: var(--muted);
   font-size: 12px;
   font-weight: 700;
+  line-height: 1.2;
 }
 
 .stat-list dd {
@@ -244,6 +273,15 @@ input[list] {
   gap: 8px;
 }
 
+.badge-label {
+  flex-basis: 100%;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+
 .badge-row span {
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -255,12 +293,12 @@ input[list] {
 }
 
 .fingerprint-panel {
-  margin-bottom: 18px;
+  margin-bottom: 22px;
 }
 
 .universe-panel,
 .winning-bands-panel {
-  margin-bottom: 18px;
+  margin-bottom: 22px;
 }
 
 .visual-layout {
@@ -272,6 +310,10 @@ input[list] {
 .constellation-chart,
 .winning-bands-chart {
   min-height: 420px;
+}
+
+.constellation-chart {
+  min-height: 360px;
 }
 
 .universe-chart svg,
@@ -467,20 +509,36 @@ input[list] {
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(300px, .9fr);
-  gap: 18px;
-  margin-bottom: 18px;
+  gap: 22px;
+  margin-bottom: 22px;
+}
+
+.layout.visual-layout {
+  grid-template-columns: minmax(0, 1.25fr) minmax(360px, .75fr);
+}
+
+.layout.compact-layout {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+}
+
+.layout.methodology-layout {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .panel {
-  padding: 18px;
+  padding: 20px;
 }
 
 .panel-heading {
   display: flex;
   justify-content: space-between;
-  gap: 18px;
+  gap: 22px;
   align-items: flex-start;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.panel-heading > div {
+  min-width: 0;
 }
 
 .panel h2 {
@@ -494,6 +552,7 @@ input[list] {
   margin: 0;
   color: var(--muted);
   line-height: 1.45;
+  max-width: 560px;
 }
 
 .chart {
@@ -502,6 +561,18 @@ input[list] {
 
 .chart.tall {
   min-height: 430px;
+}
+
+.role-shape-panel .panel-heading,
+.constellation-panel .panel-heading {
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.role-shape-panel .panel-heading p,
+.constellation-panel .panel-heading p {
+  max-width: none;
 }
 
 .axis path,
@@ -524,8 +595,8 @@ input[list] {
 .legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px 16px;
-  margin-top: 10px;
+  gap: 10px 18px;
+  margin-top: 12px;
 }
 
 .legend span {
@@ -534,6 +605,13 @@ input[list] {
   gap: 6px;
   color: var(--muted);
   font-size: 13px;
+}
+
+.label-halo {
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 4px;
+  stroke-linejoin: round;
 }
 
 .swatch {
@@ -734,6 +812,9 @@ code {
 
   .metrics,
   .layout,
+  .layout.visual-layout,
+  .layout.compact-layout,
+  .layout.methodology-layout,
   .player-card-grid,
   .methodology-grid,
   .methodology-layout,
@@ -749,6 +830,10 @@ code {
   }
 
   .compare-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .compare-control-group {
     grid-template-columns: 1fr;
   }
 
@@ -776,5 +861,10 @@ code {
 
   .role-value-strip {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .stat-list div:nth-child(odd) {
+    border-left: 0;
+    padding-left: 0;
   }
 }

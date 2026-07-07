@@ -12,8 +12,8 @@ const compareColors = { A: "#2f6f9f", B: "#c65f1a" };
 
 const viewConfig = {
   profileMix: {
-    title: "Profile mix by team success",
-    note: "Broader profiles are somewhat more common on stronger teams, but this is not a rule.",
+    title: "Role profile mix by team success",
+    note: "Broader statistical profiles are somewhat more common on stronger teams, but this pattern is descriptive.",
     dataKey: "profileMix",
     scatterKey: "scoringScatter",
     scatterTitle: "Scoring volume versus team win percentage",
@@ -25,7 +25,7 @@ const viewConfig = {
   },
   efficientLowerShot: {
     title: "Efficient lower-shot contributors by team success",
-    note: "High-winning teams have the largest share of efficient lower-shot player-seasons.",
+    note: "High-winning teams have the largest share of efficient lower-shot player-seasons in this dataset.",
     dataKey: "efficientLowerShot",
     scatterKey: "efficiencyScatter",
     scatterTitle: "Shot volume versus effective field-goal percentage",
@@ -36,8 +36,8 @@ const viewConfig = {
     yLabel: "Effective field-goal percentage"
   },
   defenseOverlap: {
-    title: "Top steals + blocks players who are not top scorers",
-    note: "Most top defensive-event player-seasons are not top-quartile scoring seasons.",
+    title: "Defensive-event leaders who are not top scorers",
+    note: "Most top steals-plus-blocks player-seasons are not top-quartile scoring seasons.",
     dataKey: "defenseOverlap",
     scatterKey: "defenseScatter",
     scatterTitle: "Scoring versus steals + blocks per 36 minutes",
@@ -57,7 +57,7 @@ const compareMetrics = [
   { key: "efg_pct", label: "Shooting efficiency", unit: "eFG%", format: d3.format(".1%") },
   { key: "fga_per_game", label: "Shot volume", unit: "FGA/g", format: d3.format(".1f") },
   { key: "turnovers_per_36", label: "Turnovers", unit: "to/36", format: d3.format(".1f") },
-  { key: "role_category_count", label: "Role breadth", unit: "categories", format: d3.format(".0f") }
+  { key: "role_category_count", label: "Role dimensions", unit: "categories", format: d3.format(".0f") }
 ];
 const roleShapeMetrics = [
   { key: "points_per_36", label: "Scoring", unit: "pts/36", format: d3.format(".1f") },
@@ -74,7 +74,7 @@ const winningBandMetrics = [
   { key: "rebounds_per_36", label: "Rebounding", unit: "reb/36", format: d3.format(".1f") },
   { key: "stocks_per_36", label: "Defensive events", unit: "stl+blk/36", format: d3.format(".2f") },
   { key: "efg_pct", label: "Efficiency", unit: "eFG%", format: d3.format(".1%") },
-  { key: "role_category_count", label: "Role breadth", unit: "roles", format: d3.format(".0f") }
+  { key: "role_category_count", label: "Role dimensions", unit: "roles", format: d3.format(".0f") }
 ];
 const winBucketColors = {
   "Low-winning teams": "#8f9bad",
@@ -275,11 +275,11 @@ function renderComparisonInsight(selected) {
   const [a, b] = summaries;
   const diff = a.summary.medianWin - b.summary.medianWin;
   const lead = Math.abs(diff) < 0.01
-    ? "These two selected profiles have very similar historical win-association context."
-    : `${diff > 0 ? a.row.player : b.row.player}'s selected profile has the stronger historical win-association context.`;
+    ? "These two selected profiles have similar historical team-win context."
+    : `${diff > 0 ? a.row.player : b.row.player}'s selected profile has the stronger historical team-win context.`;
 
   container.append("p")
-    .html(`<strong>${escapeHtml(lead)}</strong> Similar player-seasons had median team win percentages of ${fmtPct(a.summary.medianWin)} for ${escapeHtml(a.row.player)} and ${fmtPct(b.summary.medianWin)} for ${escapeHtml(b.row.player)}. Treat this as descriptive evidence, not a causal player ranking.`);
+    .html(`<strong>${escapeHtml(lead)}</strong> Comparable player-seasons had median team win percentages of ${fmtPct(a.summary.medianWin)} for ${escapeHtml(a.row.player)} and ${fmtPct(b.summary.medianWin)} for ${escapeHtml(b.row.player)}. Treat this as descriptive evidence, not a causal player ranking.`);
 }
 
 function renderPlayerCards(selected) {
@@ -297,15 +297,16 @@ function renderPlayerCards(selected) {
         <div class="player-card-heading">
           <span class="side-pill">Player ${d.side}</span>
           <h3>${escapeHtml(row.player)}</h3>
-          <p>${row.year} ${escapeHtml(row.team)} · ${escapeHtml(row.pos || row.position_group || "")}</p>
+          <p>${row.year} ${escapeHtml(row.team)} &middot; ${escapeHtml(row.pos || row.position_group || "")}</p>
         </div>
         <dl class="stat-list">
           <div><dt>Team win %</dt><dd>${fmtPct(row.win_pct)}</dd></div>
-          <div><dt>Similar profile median</dt><dd>${fmtPct(summary.medianWin)}</dd></div>
-          <div><dt>High-winning match share</dt><dd>${fmtPct(summary.highShare)}</dd></div>
-          <div><dt>Role breadth</dt><dd>${fmtNum(row.role_category_count || 0)}</dd></div>
+          <div><dt>Comparable-season median</dt><dd>${fmtPct(summary.medianWin)}</dd></div>
+          <div><dt>Strong-team comp share</dt><dd>${fmtPct(summary.highShare)}</dd></div>
+          <div><dt>Role dimensions</dt><dd>${fmtNum(row.role_category_count || 0)}</dd></div>
         </dl>
         <div class="badge-row">
+          <strong class="badge-label">Role labels</strong>
           <span>${escapeHtml(row.profile_group || "Unlabeled")}</span>
           <span>${escapeHtml(row.efficient_lower_shot_label || "Other core player")}</span>
           <span>${escapeHtml(row.defensive_event_profile || "Other core player")}</span>
@@ -349,12 +350,6 @@ function renderRoleUniverse(selected) {
     .attr("width", x(100) - x(45))
     .attr("height", y(40) - y(82));
 
-  g.append("text")
-    .attr("class", "zone-label")
-    .attr("x", x(47))
-    .attr("y", y(79))
-    .text("more non-scoring breadth around winning profiles");
-
   g.append("g")
     .attr("class", "axis")
     .attr("transform", `translate(0,${innerHeight})`)
@@ -369,7 +364,7 @@ function renderRoleUniverse(selected) {
     .attr("y", innerHeight + 44)
     .attr("text-anchor", "middle")
     .attr("class", "bar-label")
-    .text("Scoring and shot-volume percentile blend");
+    .text("Scoring load percentile");
 
   g.append("text")
     .attr("transform", "rotate(-90)")
@@ -377,7 +372,7 @@ function renderRoleUniverse(selected) {
     .attr("y", -48)
     .attr("text-anchor", "middle")
     .attr("class", "bar-label")
-    .text("Creation, rebounding, defense, efficiency, and breadth");
+    .text("Non-scoring contribution percentile");
 
   g.append("g")
     .attr("class", "universe-cloud")
@@ -392,8 +387,8 @@ function renderRoleUniverse(selected) {
     .on("mousemove", (event, d) => showTooltip(event, [
       `<strong>${d.player}</strong> (${d.year}, ${d.team})`,
       `Team win context: ${fmtPct(d.win_pct)}`,
-      `Shot-volume blend: ${Math.round(d.universe.x)}th percentile`,
-      `Role-value blend: ${Math.round(d.universe.y)}th percentile`,
+      `Scoring load: ${Math.round(d.universe.x)}th percentile`,
+      `Non-scoring contribution: ${Math.round(d.universe.y)}th percentile`,
       d.profile_group || "Unlabeled"
     ].join("<br>")))
     .on("mouseleave", hideTooltip);
@@ -423,12 +418,13 @@ function renderRoleUniverse(selected) {
     .attr("stroke-width", 1.5);
 
   selectedLayer.selectAll("text")
-    .data(selectedRows)
+    .data(selectedUniverseLabels(selectedRows, x, y, innerWidth, innerHeight))
     .join("text")
-    .attr("class", "selected-label")
-    .attr("x", d => clamp(x(d.universe.x) + 15, 4, innerWidth - 120))
-    .attr("y", d => clamp(y(d.universe.y) - 10, 12, innerHeight - 4))
-    .text(d => `${d.side}: ${d.player}`);
+    .attr("class", "selected-label label-halo")
+    .attr("x", d => d.labelX)
+    .attr("y", d => d.labelY)
+    .attr("text-anchor", d => d.anchor)
+    .text(d => d.label);
 
   const legend = container.append("div").attr("class", "legend universe-legend");
   successOrder.forEach(bucket => {
@@ -545,7 +541,7 @@ function renderRoleShape(selected) {
     .attr("fill", d => compareColors[d.side])
     .on("mousemove", (event, d) => showTooltip(event, [
       `<strong>${d.player}</strong>`,
-      `${d.label}: ${Math.round(d.percentile)}th percentile`,
+      `${d.label}: ${ordinal(Math.round(d.percentile))} percentile`,
       `Actual: ${d.format(d.actual)} ${d.unit}`
     ].join("<br>")))
     .on("mouseleave", hideTooltip);
@@ -568,9 +564,10 @@ function renderSimilarityConstellation(selected) {
   container.selectAll("*").remove();
   if (!selected.length) return;
 
-  const width = Math.max(container.node().clientWidth || 560, 420);
-  const height = selected.length > 1 && width < 640 ? 520 : 470;
-  const vertical = selected.length > 1 && width < 640;
+  const width = Math.max(container.node().clientWidth || 560, 300);
+  const compact = width < 520;
+  const vertical = selected.length > 1 && compact;
+  const height = vertical ? selected.length * 218 + 26 : 450;
   const svg = container.append("svg").attr("width", width).attr("height", height).attr("viewBox", `0 0 ${width} ${height}`);
   const color = d3.scaleOrdinal()
     .domain(successOrder)
@@ -578,21 +575,23 @@ function renderSimilarityConstellation(selected) {
 
   selected.forEach((item, clusterIndex) => {
     const center = vertical
-      ? { x: width / 2, y: (clusterIndex + .62) * height / selected.length }
+      ? { x: width / 2, y: 118 + clusterIndex * 218 }
       : { x: (clusterIndex + 1) * width / (selected.length + 1), y: height / 2 };
-    const matches = getSimilarRows(item.row, 12);
+    const matches = getSimilarRows(item.row, compact ? 8 : 10);
     const maxDistance = d3.max(matches, d => d.distance) || 1;
-    const distance = d3.scaleLinear().domain([0, maxDistance]).range([46, width < 520 ? 116 : 150]);
+    const maxRadius = compact ? Math.max(66, Math.min(width / 2 - 44, 88)) : 140;
+    const distance = d3.scaleLinear().domain([0, maxDistance]).range([42, maxRadius]);
     const size = d3.scaleSqrt()
       .domain(d3.extent(matches, d => d.minutes_per_game).filter(Number.isFinite))
-      .range([5, 12]);
+      .range(compact ? [4.5, 9] : [5, 11]);
     const nodes = matches.map((match, i) => {
       const theta = (Math.PI * 2 * i / matches.length) - Math.PI / 2;
       const r = distance(match.distance);
       return {
         ...match,
-        x: center.x + Math.cos(theta) * r,
-        y: center.y + Math.sin(theta) * r
+        theta,
+        x: clamp(center.x + Math.cos(theta) * r, 18, width - 18),
+        y: clamp(center.y + Math.sin(theta) * r, 18, height - 18)
       };
     });
 
@@ -619,7 +618,7 @@ function renderSimilarityConstellation(selected) {
       .attr("x", center.x)
       .attr("y", center.y - 24)
       .attr("text-anchor", "middle")
-      .text(`${item.side}: ${item.row.player}`);
+      .text(`${item.side}: ${shortPlayerLabel(item.row.player)}`);
 
     svg.append("g")
       .attr("class", "constellation-nodes")
@@ -643,11 +642,13 @@ function renderSimilarityConstellation(selected) {
     svg.append("g")
       .attr("class", "constellation-labels")
       .selectAll("text")
-      .data(nodes.slice(0, 5))
+      .data(nodes.slice(0, compact ? 2 : 4))
       .join("text")
-      .attr("x", d => clamp(d.x + 9, 4, width - 110))
-      .attr("y", d => clamp(d.y + 4, 12, height - 4))
-      .text(d => `${d.player} ${d.year}`);
+      .attr("class", "label-halo")
+      .attr("x", d => clamp(d.x + (Math.cos(d.theta) >= 0 ? 9 : -9), 16, width - 16))
+      .attr("y", d => clamp(d.y + 4, 14, height - 8))
+      .attr("text-anchor", d => Math.cos(d.theta) >= 0 ? "start" : "end")
+      .text(d => `${shortPlayerLabel(d.player)} ${d.year}`);
   });
 
   const legend = container.append("div").attr("class", "legend");
@@ -733,7 +734,7 @@ function renderWinningBands(selected) {
         .on("mousemove", event => showTooltip(event, [
           `<strong>Player ${selection.side}: ${selection.row.player}</strong>`,
           `${metric.label}: ${metric.format(value)} ${metric.unit}`,
-          `High-winning middle band: ${metric.format(metric.q1)} to ${metric.format(metric.q3)}`
+          `Strong-team middle band: ${metric.format(metric.q1)} to ${metric.format(metric.q3)}`
         ].join("<br>")))
         .on("mouseleave", hideTooltip);
 
@@ -760,9 +761,14 @@ function renderFingerprintChart(selected) {
   if (!selected.length) return;
 
   const width = container.node().clientWidth || 980;
-  const rowHeight = 42;
-  const height = compareMetrics.length * rowHeight + 66;
-  const margin = { top: 18, right: 108, bottom: 34, left: 158 };
+  const rowHeight = width < 720 ? 46 : 44;
+  const height = compareMetrics.length * rowHeight + 82;
+  const margin = {
+    top: 20,
+    right: width < 720 ? 46 : 70,
+    bottom: 48,
+    left: width < 720 ? 138 : 166
+  };
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
   const x = d3.scaleLinear().domain([0, 100]).range([0, innerWidth]);
@@ -813,16 +819,31 @@ function renderFingerprintChart(selected) {
     .attr("width", d => x(d.percentile))
     .attr("height", side.bandwidth())
     .attr("fill", d => compareColors[d.side])
-    .attr("opacity", .88);
+    .attr("opacity", .88)
+    .on("mousemove", (event, d) => showTooltip(event, [
+      `<strong>Player ${d.side}: ${selected.find(item => item.side === d.side)?.row.player || ""}</strong>`,
+      `${d.metric.label}: ${ordinal(Math.round(d.percentile))} percentile`,
+      `Actual value: ${d.metric.format(d.actual)} ${d.metric.unit}`
+    ].join("<br>")))
+    .on("mouseleave", hideTooltip);
 
   g.selectAll(".fingerprint-value")
     .data(points)
     .join("text")
     .attr("class", "fingerprint-value")
-    .attr("x", d => Math.min(x(d.percentile) + 8, innerWidth + 8))
+    .attr("x", d => d.percentile > 82 ? Math.max(x(d.percentile) - 8, 22) : Math.min(x(d.percentile) + 8, innerWidth - 6))
     .attr("y", d => y(d.metric.key) + side(d.side) + side.bandwidth() / 2)
     .attr("dy", ".35em")
-    .text(d => `${d.side}: ${Math.round(d.percentile)}th · ${d.metric.format(d.actual)} ${d.metric.unit}`);
+    .attr("text-anchor", d => d.percentile > 82 ? "end" : "start")
+    .attr("fill", d => d.percentile > 82 ? "#fff" : "#5a6678")
+    .text(d => `${d.side} ${ordinal(Math.round(d.percentile))}`);
+
+  g.append("text")
+    .attr("x", innerWidth / 2)
+    .attr("y", innerHeight + 36)
+    .attr("text-anchor", "middle")
+    .attr("class", "bar-label")
+    .text("League percentile");
 
   const legend = container.append("div").attr("class", "legend");
   selected.forEach(item => {
@@ -842,7 +863,7 @@ function renderSimilarityContext(selected) {
     const summary = getSimilaritySummary(item.row);
     const block = context.append("article").attr("class", "similarity-block");
     block.append("h3").text(`${item.row.player}, ${item.row.year} ${item.row.team}`);
-    block.append("p").html(`Nearest ${summary.count} similar player-seasons: <strong>${fmtPct(summary.medianWin)}</strong> median team win %, with <strong>${fmtPct(summary.highShare)}</strong> on high-winning teams.`);
+    block.append("p").html(`Nearest ${summary.count} comparable player-seasons: <strong>${fmtPct(summary.medianWin)}</strong> median team win %, with <strong>${fmtPct(summary.highShare)}</strong> on high-winning teams.`);
   });
 
   selected.forEach(item => {
@@ -903,6 +924,45 @@ function avgFinite(values) {
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
+}
+
+function ordinal(value) {
+  const n = Math.round(value);
+  const mod100 = n % 100;
+  if (mod100 >= 11 && mod100 <= 13) return `${n}th`;
+  const mod10 = n % 10;
+  if (mod10 === 1) return `${n}st`;
+  if (mod10 === 2) return `${n}nd`;
+  if (mod10 === 3) return `${n}rd`;
+  return `${n}th`;
+}
+
+function shortPlayerLabel(name) {
+  const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
+  if (parts.length <= 1) return parts[0] || "";
+  return parts[parts.length - 1];
+}
+
+function selectedUniverseLabels(rows, xScale, yScale, innerWidth, innerHeight) {
+  const labels = rows.map(row => {
+    const pointX = xScale(row.universe.x);
+    const pointY = yScale(row.universe.y);
+    const toRight = pointX < innerWidth * .68;
+    return {
+      ...row,
+      label: `${row.side}: ${shortPlayerLabel(row.player)}`,
+      labelX: clamp(pointX + (toRight ? 16 : -16), 4, innerWidth - 4),
+      labelY: clamp(pointY - 14, 14, innerHeight - 8),
+      anchor: toRight ? "start" : "end"
+    };
+  }).sort((a, b) => a.labelY - b.labelY);
+
+  for (let i = 1; i < labels.length; i += 1) {
+    if (labels[i].labelY - labels[i - 1].labelY < 18) {
+      labels[i].labelY = clamp(labels[i - 1].labelY + 18, 14, innerHeight - 8);
+    }
+  }
+  return labels;
 }
 
 function updateView(viewName) {
