@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Methodology | Beyond Points Per Game</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=method1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=method2">
 </head>
 <body data-static-base="{{ url_for('static', filename='') }}">
   <header class="topbar">
     <div>
       <p class="eyebrow">NBA player role analytics</p>
       <h1>Methodology</h1>
-      <p class="lede">How the project builds player-season comparisons, role labels, similarity matches, win-context benchmarks, and the team map.</p>
+      <p class="lede">Definitions for every metric, label, chart, and comparison concept used in the role explorer and team map.</p>
     </div>
     <nav aria-label="Primary">
       <a href="/">Role explorer</a>
@@ -24,23 +24,23 @@
     <section class="panel methodology-hero">
       <p class="eyebrow">Interpretation rule</p>
       <h2>These visuals describe associations, not causal player impact.</h2>
-      <p>The app compares player-season statistical profiles with team win percentage. It can show which kinds of statistical shapes often appear near stronger teams, but it does not prove that a player caused a team to win.</p>
+      <p>The app compares player-season statistical profiles with team win percentage. It can show which statistical shapes appear more often around stronger teams, but it does not prove that a player or role caused a team to win.</p>
     </section>
 
     <section class="methodology-grid" aria-label="Methodology summary">
       <article class="panel">
         <span class="method-number">7,298</span>
-        <h2>Player-team seasons in the source analysis</h2>
-        <p>The data pipeline starts from cleaned player-team-season rows, then exports a compact static comparison file for the web app.</p>
+        <h2>Player-season records in the app</h2>
+        <p>The role explorer uses cleaned player-team-season rows. A player can appear more than once in a season if he played for multiple teams.</p>
       </article>
       <article class="panel">
         <span class="method-number">1,462</span>
-        <h2>Team-season records</h2>
-        <p>Team win percentage supplies context for player seasons and powers the state-level team map.</p>
+        <h2>Team seasons with context</h2>
+        <p>Team win percentage supplies context for player seasons and powers the season-by-season state map.</p>
       </article>
       <article class="panel">
         <span class="method-number">Static</span>
-        <h2>GitHub Pages deployment</h2>
+        <h2>Static GitHub Pages deployment</h2>
         <p>The Flask app is used for local preview. The public site is built from Jinja templates into static HTML, CSS, JavaScript, CSV, and JSON.</p>
       </article>
     </section>
@@ -49,15 +49,15 @@
       <article class="panel methodology-card">
         <p class="eyebrow">Data scope</p>
         <h2>What counts as a row?</h2>
-        <p>A player-season row represents a player on a specific team in a specific season. If a player appeared for multiple teams, those team contexts can appear as separate player-team-season rows.</p>
+        <p>A <strong>player-season</strong> or <strong>player-team-season</strong> row represents a player on one team in one NBA season. If a player changed teams, each team context can appear separately because the team's win percentage and role context changed.</p>
         <p>The comparison file used by the app is <code>static/data/player_seasons.csv</code>. It is generated from <code>outputs/tables/top3_h1_player_scatter_data.csv</code> and includes only the fields needed for the interactive site.</p>
       </article>
 
       <article class="panel methodology-card">
         <p class="eyebrow">Team context</p>
         <h2>Win percentage and success buckets</h2>
-        <p><code>win_pct</code> is the team's season win percentage for the player-team-season row. The app uses three ordered buckets: low-winning, middle-winning, and high-winning teams.</p>
-        <p>Those buckets support the stacked profile chart, color encodings, example selection, and high-winning benchmark bands.</p>
+        <p><code>win_pct</code> is the team's season win percentage for that player-team-season row. <strong>Team win %</strong>, <strong>team win context</strong>, and <strong>team context</strong> all refer to this same descriptive team-level measure.</p>
+        <p><strong>Low-winning teams</strong>, <strong>middle-winning teams</strong>, and <strong>high-winning teams</strong> are win-percentage tertiles. The pipeline ranks team-season win percentages and splits them into three ordered groups with <code>pd.qcut</code>.</p>
       </article>
     </section>
 
@@ -76,43 +76,58 @@
           <tbody>
             <tr>
               <td><code>points_per_36</code></td>
-              <td>Scoring production normalized to 36 minutes.</td>
+              <td><strong>Scoring</strong>, shown as points per 36 minutes.</td>
               <td>Compares scoring rate without making starters and bench players purely a minutes contest.</td>
             </tr>
             <tr>
               <td><code>points_per_game</code></td>
-              <td>Traditional scoring volume.</td>
-              <td>Provides the familiar baseline that the project moves beyond.</td>
+              <td>Traditional points per game.</td>
+              <td>Defines <strong>top scorer</strong> and gives the familiar baseline that the project moves beyond.</td>
             </tr>
             <tr>
               <td><code>fga_per_game</code></td>
-              <td>Shot attempt volume.</td>
+              <td><strong>Shot volume</strong>, shown as field-goal attempts per game or FGA/g.</td>
               <td>Separates high-usage scoring roles from lower-shot roles.</td>
             </tr>
             <tr>
               <td><code>efg_pct</code></td>
-              <td>Effective field-goal percentage.</td>
+              <td><strong>Shooting efficiency</strong> or <strong>efficiency</strong>, shown as effective field-goal percentage.</td>
               <td>Accounts for the extra value of made three-point shots when comparing shooting efficiency.</td>
             </tr>
             <tr>
               <td><code>assists_per_36</code></td>
-              <td>Creation and passing production per 36 minutes.</td>
+              <td><strong>Creation</strong>, shown as assists per 36 minutes.</td>
               <td>Captures offensive role value that points alone misses.</td>
             </tr>
             <tr>
               <td><code>rebounds_per_36</code></td>
-              <td>Rebounding production per 36 minutes.</td>
+              <td><strong>Rebounding</strong> or <strong>boards</strong>, shown as rebounds per 36 minutes.</td>
               <td>Represents possession-finishing and frontcourt role context.</td>
             </tr>
             <tr>
               <td><code>stocks_per_36</code></td>
-              <td>Steals plus blocks per 36 minutes.</td>
+              <td><strong>Defensive events</strong>, <strong>events</strong>, <strong>stocks</strong>, or <strong>steals + blocks</strong> per 36 minutes.</td>
               <td>Summarizes box-score defensive event production.</td>
             </tr>
             <tr>
+              <td><code>turnovers_per_36</code></td>
+              <td><strong>Turnovers</strong> per 36 minutes.</td>
+              <td>Shown descriptively. Higher values can reflect more on-ball responsibility as well as mistakes.</td>
+            </tr>
+            <tr>
               <td><code>role_category_count</code></td>
-              <td>Number of role categories where a player-season stands out.</td>
-              <td>Approximates breadth: broader statistical profiles can differ from narrow scoring-only profiles.</td>
+              <td><strong>Role dimensions</strong>, <strong>role breadth</strong>, or <strong>breadth</strong>.</td>
+              <td>Counts how many role metrics are at or above the sample median: scoring, assists, rebounds, steals, blocks, and eFG%.</td>
+            </tr>
+            <tr>
+              <td><code>minutes_per_game</code></td>
+              <td>Minutes played per game.</td>
+              <td>Used as a filter in similarity matching and examples so tiny-minute seasons do not dominate.</td>
+            </tr>
+            <tr>
+              <td><code>position_group</code></td>
+              <td>Broad player position group.</td>
+              <td>Similarity first searches within the same position group when enough comparable rows are available.</td>
             </tr>
           </tbody>
         </table>
@@ -123,37 +138,92 @@
       <article class="panel methodology-card">
         <p class="eyebrow">Role labels</p>
         <h2>Profile groups and examples</h2>
-        <p><code>profile_group</code> classifies player-seasons into broad role shapes such as balanced, mixed, or narrow. The app then compares how often those profile types appear across team-success buckets.</p>
-        <p><code>efficient_lower_shot_label</code> identifies player-seasons that combine strong shooting efficiency with lower shot volume. <code>defensive_event_profile</code> distinguishes steals-plus-blocks leaders from top scorers and overlap cases.</p>
+        <p><strong>Role labels</strong> are the small tags on each player card. They come from three fields: <code>profile_group</code>, <code>efficient_lower_shot_label</code>, and <code>defensive_event_profile</code>.</p>
+        <p><code>profile_group</code> uses <code>role_category_count</code>: 0-1 dimensions is <strong>Narrow profile</strong>, 2-3 is <strong>Mixed profile</strong>, and 4-6 is <strong>Balanced profile</strong>.</p>
+        <p><code>efficient_lower_shot_label</code> is <strong>Efficient lower-shot player</strong> when a player-season is at or above median eFG% and below median FGA/game. Otherwise it is <strong>Other core player</strong>.</p>
+        <p><code>defensive_event_profile</code> compares top-quartile scoring with top-quartile steals-plus-blocks production. Labels include <strong>Top steals + blocks + top scorer</strong>, <strong>Top steals + blocks, not top scorer</strong>, <strong>Top scorer, not top steals + blocks</strong>, and <strong>Other core player</strong>.</p>
       </article>
 
       <article class="panel methodology-card">
         <p class="eyebrow">Percentiles</p>
         <h2>How the fingerprints work</h2>
-        <p>For each metric, the app sorts all reviewed player-seasons and places the selected season into that distribution. A 75th percentile scoring value means that season ranked above roughly three quarters of reviewed player-seasons for that metric.</p>
-        <p>Turnovers are shown descriptively rather than treated as a value judgment. Higher turnover percentiles usually reflect more on-ball responsibility as well as mistakes.</p>
+        <p>A <strong>league percentile</strong> compares one selected season with all reviewed player-seasons in the dataset. A 75th percentile scoring value means that season ranked above roughly three quarters of reviewed player-seasons for that metric.</p>
+        <p>The app uses percentiles in the <strong>role fingerprint</strong>, <strong>archetype radar</strong>, <strong>role map</strong>, and <strong>similarity distance</strong>. Percentiles are descriptive ranks, not grades.</p>
       </article>
     </section>
 
     <section class="panel methodology-card">
+      <p class="eyebrow">Player comparison terms</p>
+      <h2>What the cards and summary sentence mean</h2>
+      <div class="method-table-wrap">
+        <table class="method-table">
+          <thead>
+            <tr>
+              <th>App term</th>
+              <th>Definition</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Player A / Player B</strong></td>
+              <td>The two selected player-seasons. The letters only identify the selections and do not imply rank.</td>
+            </tr>
+            <tr>
+              <td><strong>Season</strong></td>
+              <td>The NBA season attached to the selected player-team row, shown with team abbreviation and team win percentage.</td>
+            </tr>
+            <tr>
+              <td><strong>Comparable-season median</strong></td>
+              <td>The median team win percentage among the nearest 40 comparable player-seasons for the selected row.</td>
+            </tr>
+            <tr>
+              <td><strong>Strong-team comp share</strong></td>
+              <td>The share of those nearest 40 comparable player-seasons that came from high-winning teams.</td>
+            </tr>
+            <tr>
+              <td><strong>Historical team-win context</strong></td>
+              <td>The app's summary of how similar historical statistical profiles lined up with team win percentage.</td>
+            </tr>
+            <tr>
+              <td><strong>Descriptive evidence, not a causal player ranking</strong></td>
+              <td>The comparison describes patterns in historical box-score profiles. It does not prove one player is better or caused more wins.</td>
+            </tr>
+            <tr>
+              <td><strong>Unlabeled</strong></td>
+              <td>A fallback shown when a label field is blank or unavailable.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel methodology-card">
       <p class="eyebrow">Interactive comparisons</p>
-      <h2>How similarity and the new visuals are computed</h2>
+      <h2>How each role explorer visual is computed</h2>
       <div class="method-list">
         <article>
-          <h3>Similar player-seasons</h3>
-          <p>The similarity search compares percentile-ranked values for scoring, assists, rebounds, steals plus blocks, and shooting efficiency. It first tries to compare within the same position group; if that pool is too small, it falls back to the full player-season set. The closest rows are the smallest Euclidean distances across those percentile dimensions.</p>
+          <h3>Role map</h3>
+          <p>The role map was previously called the Winning Profile Galaxy. Each point is one player-season. The x-axis, <strong>scoring load percentile</strong>, averages points-per-36 percentile and FGA-per-game percentile. The y-axis, <strong>non-scoring contribution percentile</strong>, averages assists, rebounds, stocks, eFG%, and role-dimensions percentiles. Color shows team-success bucket. Rings mark Player A and Player B.</p>
         </article>
         <article>
-          <h3>Winning Profile Galaxy</h3>
-          <p>The galaxy's x-axis averages scoring-rate percentile and shot-volume percentile. Its y-axis averages creation, rebounding, defensive-event, efficiency, and role-breadth percentiles. Color shows team success bucket, and selected players are marked with rings.</p>
+          <h3>Archetype radar</h3>
+          <p>The radar shows selected seasons on six percentile spokes: scoring, creation, boards, events, efficiency, and breadth. The value strip below the chart shows the exact underlying box-score values.</p>
         </article>
         <article>
-          <h3>Archetype Radar</h3>
-          <p>The radar uses percentile spokes for scoring, creation, rebounding, defensive events, efficiency, and role breadth. The small value strip under the radar keeps exact underlying values visible so the shape is not the only evidence.</p>
+          <h3>Similar seasons constellation</h3>
+          <p>The constellation shows the closest historical player-season neighbors for each selected season. Nearby labeled names had similar percentile profiles. <strong>Similarity distance</strong> is Euclidean distance across scoring, shot volume, assists, rebounds, stocks, eFG%, and role dimensions, after converting each metric to a 0-100 percentile. Smaller distance means more statistically similar. It does not measure player quality or causal impact.</p>
         </article>
         <article>
-          <h3>Winning Bands</h3>
-          <p>For each metric, the shaded band is the middle 50 percent of high-winning-team player-seasons. Selected player dots show whether a season sits below, inside, or above that descriptive benchmark range.</p>
+          <h3>High-winning benchmark bands</h3>
+          <p>For each metric, the shaded band is the middle half of high-winning-team player-seasons, from the 25th percentile to the 75th percentile. The vertical line is the high-winning median. Selected player dots show whether a season sits below, inside, or above that descriptive strong-team range.</p>
+        </article>
+        <article>
+          <h3>Role fingerprint</h3>
+          <p>The fingerprint chart compares Player A and Player B across scoring, creation, rebounding, defensive events, shooting efficiency, shot volume, turnovers, and role dimensions. Bars show league percentile; hover text shows the actual metric value.</p>
+        </article>
+        <article>
+          <h3>Similar-season context and closest matches</h3>
+          <p>The context panel summarizes the nearest 40 comparable player-seasons with median team win percentage and high-winning share. The closest matches table lists the five nearest rows for each selected player, with match name, team, season, and win percentage.</p>
         </article>
       </div>
     </section>
@@ -161,17 +231,97 @@
     <section class="layout methodology-layout">
       <article class="panel methodology-card">
         <p class="eyebrow">Summary charts</p>
-        <h2>Bucket shares and scatter plots</h2>
+        <h2>Summary questions, bucket shares, and scatter plots</h2>
+        <p>The <strong>summary question</strong> dropdown changes the lower bar chart, examples, and scatter plot. The three choices are profile mix by team success, efficient lower-shot contributors, and defensive-event leaders.</p>
         <p>The stacked bars calculate shares within each team-success bucket. This prevents high-volume buckets from dominating the display and makes profile mix easier to compare across low-, middle-, and high-winning teams.</p>
-        <p>The scatter plots show direct bivariate evidence: scoring versus team win percentage, shot volume versus efficiency, and scoring versus steals plus blocks.</p>
+        <p>The scatter plots show direct bivariate evidence: scoring volume versus team win percentage, shot volume versus effective field-goal percentage, and scoring versus steals plus blocks. Hovering a point shows the player, season, team, selected x/y values, and label.</p>
+        <p><strong>Concrete examples</strong> are representative rows chosen from the active summary question. They are filtered to players with at least 15 minutes per game and selected to avoid repeating the same team or player when possible.</p>
       </article>
 
       <article class="panel methodology-card">
         <p class="eyebrow">Map calculation</p>
-        <h2>State-level team win percentage</h2>
-        <p>The map joins team abbreviations to states. For states with multiple teams in a season, the displayed value is the average win percentage across those teams. States with no NBA team in the selected season are left white.</p>
-        <p>The map gives geographic context for team win percentage, while the main analytical story remains the player role comparison.</p>
+        <h2>Team map and state-level win percentage</h2>
+        <p>The <strong>NBA Team Context Map</strong> uses the season slider to filter team-season rows. Team abbreviations are joined to US states. For states with multiple NBA teams in a season, the displayed value is the average win percentage across those teams.</p>
+        <p>White states have no NBA team in the selected season. The map tooltip shows state, teams, and average win pct. The side table lists the eight highest state averages for the selected season.</p>
+        <p>The map gives geographic context for team win percentage, while the main analytical story remains the player-role comparison.</p>
       </article>
+    </section>
+
+    <section class="panel methodology-card">
+      <p class="eyebrow">Glossary</p>
+      <h2>Concepts that appear in the app</h2>
+      <div class="method-table-wrap">
+        <table class="method-table">
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>Meaning</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Beyond Points Per Game</strong></td>
+              <td>The project framing: player value and team context are explored through scoring plus efficiency, creation, rebounding, defensive events, and role breadth.</td>
+            </tr>
+            <tr>
+              <td><strong>Role explorer</strong></td>
+              <td>The main interactive comparison page for selecting two player-seasons and reading their profile, similarity, and win-context evidence.</td>
+            </tr>
+            <tr>
+              <td><strong>Team map</strong></td>
+              <td>The state-level geography view of average NBA team win percentage by season.</td>
+            </tr>
+            <tr>
+              <td><strong>Prototype</strong></td>
+              <td>This app is an interactive prototype for exploring design choices and analytical framing, not a final player-ranking model.</td>
+            </tr>
+            <tr>
+              <td><strong>Association, not causation</strong></td>
+              <td>A guardrail repeated in the app. The charts show historical patterns between statistical profiles and team win context, not proof of direct causal impact.</td>
+            </tr>
+            <tr>
+              <td><strong>Player-season evidence</strong></td>
+              <td>The scatterplot section that shows individual rows instead of only aggregate bucket summaries.</td>
+            </tr>
+            <tr>
+              <td><strong>Strong teams / high-winning teams</strong></td>
+              <td>The top third of team-season win percentages in the reviewed data.</td>
+            </tr>
+            <tr>
+              <td><strong>Middle-winning teams</strong></td>
+              <td>The middle third of team-season win percentages.</td>
+            </tr>
+            <tr>
+              <td><strong>Low-winning teams</strong></td>
+              <td>The bottom third of team-season win percentages.</td>
+            </tr>
+            <tr>
+              <td><strong>Top quartile</strong></td>
+              <td>The top 25 percent of reviewed player-seasons for a metric. The app uses this for top scorer and top steals-plus-blocks labels.</td>
+            </tr>
+            <tr>
+              <td><strong>Core player</strong></td>
+              <td>A broad label used in the role tags. In the app, "Other core player" means the row did not meet the efficient-lower-shot or defensive-event label condition currently being shown.</td>
+            </tr>
+            <tr>
+              <td><strong>Share of bucket</strong></td>
+              <td>The percent of rows inside a team-success bucket that have a given label. This is what the stacked bar charts show.</td>
+            </tr>
+            <tr>
+              <td><strong>Median win pct</strong></td>
+              <td>The middle team win percentage among a set of comparable rows or label group rows.</td>
+            </tr>
+            <tr>
+              <td><strong>Actual value</strong></td>
+              <td>The raw box-score metric shown in tooltips and value strips, such as 23.3 points per 36 or 53.8% eFG.</td>
+            </tr>
+            <tr>
+              <td><strong>Tooltip / hover details</strong></td>
+              <td>Extra details shown when hovering chart elements, including player, season, team, metric values, percentiles, and labels.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </section>
 
     <section class="panel methodology-card">
