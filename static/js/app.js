@@ -13,10 +13,10 @@ const compareColors = { A: "#2f6f9f", B: "#c65f1a" };
 const viewConfig = {
   profileMix: {
     title: "Role profile mix by team success",
-    note: "Broader statistical profiles are somewhat more common on stronger teams, but this pattern is descriptive.",
+    note: "Broader player-season statistical profiles are somewhat more common on stronger teams, but this pattern is descriptive.",
     dataKey: "profileMix",
     scatterKey: "scoringScatter",
-    scatterTitle: "Scoring volume versus team win percentage",
+    scatterTitle: "Player-season scoring volume versus team win percentage",
     x: "points_per_game",
     y: "win_pct",
     color: "profile_group",
@@ -28,42 +28,42 @@ const viewConfig = {
     note: "High-winning teams have the largest share of efficient lower-shot player-seasons in this dataset.",
     dataKey: "efficientLowerShot",
     scatterKey: "efficiencyScatter",
-    scatterTitle: "Shot volume versus effective field-goal percentage",
+    scatterTitle: "Player-season shot volume versus shooting efficiency",
     x: "fga_per_game",
     y: "efg_pct",
     color: "team_success_bucket",
     xLabel: "Field-goal attempts per game",
-    yLabel: "Effective field-goal percentage"
+    yLabel: "eFG% (shooting efficiency)"
   },
   defenseOverlap: {
     title: "Defensive-event leaders who are not top scorers",
-    note: "Most top steals-plus-blocks player-seasons are not top-quartile scoring seasons.",
+    note: "Most top defensive-event player-seasons are not top-quartile scoring seasons. Steals + blocks are useful box-score events, not complete defense.",
     dataKey: "defenseOverlap",
     scatterKey: "defenseScatter",
-    scatterTitle: "Scoring versus steals + blocks per 36 minutes",
+    scatterTitle: "Player-season scoring versus defensive events per 36",
     x: "points_per_game",
     y: "steals_blocks_per_36",
-    color: "defensive_event_profile",
+    color: "team_success_bucket",
     xLabel: "Points per game",
-    yLabel: "Steals + blocks per 36"
+    yLabel: "Defensive events (steals + blocks) per 36"
   }
 };
 
 const compareMetrics = [
-  { key: "points_per_36", label: "Scoring", unit: "pts/36", format: d3.format(".1f") },
-  { key: "assists_per_36", label: "Creation", unit: "ast/36", format: d3.format(".1f") },
-  { key: "rebounds_per_36", label: "Rebounding", unit: "reb/36", format: d3.format(".1f") },
-  { key: "stocks_per_36", label: "Defensive events", unit: "stl+blk/36", format: d3.format(".2f") },
-  { key: "efg_pct", label: "Shooting efficiency", unit: "eFG%", format: d3.format(".1%") },
-  { key: "fga_per_game", label: "Shot volume", unit: "FGA/g", format: d3.format(".1f") },
-  { key: "turnovers_per_36", label: "Turnovers", unit: "to/36", format: d3.format(".1f") },
-  { key: "role_category_count", label: "Role dimensions", unit: "categories", format: d3.format(".0f") }
+  { key: "points_per_36", label: "Scoring", unit: "pts/36", format: d3.format(".1f"), definition: "Per 36 means normalized to 36 minutes." },
+  { key: "assists_per_36", label: "Creation", unit: "ast/36", format: d3.format(".1f"), definition: "Per 36 means normalized to 36 minutes." },
+  { key: "rebounds_per_36", label: "Rebounding", unit: "reb/36", format: d3.format(".1f"), definition: "Per 36 means normalized to 36 minutes." },
+  { key: "stocks_per_36", label: "Defensive events", unit: "stl+blk/36", format: d3.format(".2f"), definition: "Defensive events are steals + blocks; they do not capture all defense." },
+  { key: "efg_pct", label: "Shooting efficiency", unit: "eFG%", format: d3.format(".1%"), definition: "eFG% accounts for the extra value of 3-pointers." },
+  { key: "fga_per_game", label: "Shot volume", unit: "FGA/g", format: d3.format(".1f"), definition: "Field-goal attempts per game." },
+  { key: "turnovers_per_36", label: "Turnovers", unit: "to/36", format: d3.format(".1f"), definition: "Higher values can reflect on-ball responsibility as well as mistakes." },
+  { key: "role_category_count", label: "Role dimensions", unit: "categories", format: d3.format(".0f"), definition: "Number of strong role areas in this player-season." }
 ];
 const roleShapeMetrics = [
   { key: "points_per_36", label: "Scoring", unit: "pts/36", format: d3.format(".1f") },
   { key: "assists_per_36", label: "Creation", unit: "ast/36", format: d3.format(".1f") },
   { key: "rebounds_per_36", label: "Boards", unit: "reb/36", format: d3.format(".1f") },
-  { key: "stocks_per_36", label: "Events", unit: "stl+blk/36", format: d3.format(".2f") },
+  { key: "stocks_per_36", label: "Def events", unit: "stl+blk/36", format: d3.format(".2f") },
   { key: "efg_pct", label: "Efficiency", unit: "eFG%", format: d3.format(".1%") },
   { key: "role_category_count", label: "Breadth", unit: "roles", format: d3.format(".0f") }
 ];
@@ -72,7 +72,7 @@ const winningBandMetrics = [
   { key: "fga_per_game", label: "Shot volume", unit: "FGA/g", format: d3.format(".1f") },
   { key: "assists_per_36", label: "Creation", unit: "ast/36", format: d3.format(".1f") },
   { key: "rebounds_per_36", label: "Rebounding", unit: "reb/36", format: d3.format(".1f") },
-  { key: "stocks_per_36", label: "Defensive events", unit: "stl+blk/36", format: d3.format(".2f") },
+  { key: "stocks_per_36", label: "Def events", unit: "stl+blk/36", format: d3.format(".2f") },
   { key: "efg_pct", label: "Efficiency", unit: "eFG%", format: d3.format(".1%") },
   { key: "role_category_count", label: "Role dimensions", unit: "roles", format: d3.format(".0f") }
 ];
@@ -83,14 +83,17 @@ const winBucketColors = {
 };
 const similarityKeys = [
   "points_per_36",
+  "fga_per_game",
   "assists_per_36",
   "rebounds_per_36",
   "stocks_per_36",
-  "efg_pct"
+  "efg_pct",
+  "role_category_count"
 ];
 
 const fmtPct = d3.format(".1%");
 const fmtNum = d3.format(",.0f");
+const fmtMoney = d3.format("$,.1f");
 const tooltip = d3.select("#tooltip");
 const staticBase = (document.body.dataset.staticBase || "/static/").replace(/\/?$/, "/");
 
@@ -156,7 +159,7 @@ function normalizePlayerRow(row) {
     "year", "age", "games", "games_started", "minutes_per_game", "points_per_game",
     "points_per_36", "fga_per_game", "efg_pct", "assists_per_36", "rebounds_per_36",
     "stocks_per_36", "steals_blocks_per_36", "turnovers_per_36", "role_category_count",
-    "role_value_score", "win_pct", ...similarityKeys
+    "role_value_score", "win_pct", "salary_m", ...similarityKeys
   ];
   const clean = { ...row };
   numericFields.forEach(field => {
@@ -279,11 +282,11 @@ function renderComparisonInsight(selected) {
   const [a, b] = summaries;
   const diff = a.summary.medianWin - b.summary.medianWin;
   const lead = Math.abs(diff) < 0.01
-    ? "These two selected profiles have similar historical team-win context."
-    : `${diff > 0 ? a.row.player : b.row.player}'s selected profile has the stronger historical team-win context.`;
+    ? "These two selected player-season profiles have similar historical team-win context."
+    : `${rowSeasonLabel(diff > 0 ? a.row : b.row)} has the higher comparable-season median team-win context.`;
 
   container.append("p")
-    .html(`<strong>${escapeHtml(lead)}</strong> Comparable player-seasons had median team win percentages of ${fmtPct(a.summary.medianWin)} for ${escapeHtml(a.row.player)} and ${fmtPct(b.summary.medianWin)} for ${escapeHtml(b.row.player)}. Treat this as descriptive evidence, not a causal player ranking.`);
+    .html(`<strong>${escapeHtml(lead)}</strong> Comparable player-seasons had median team win percentages of ${fmtPct(a.summary.medianWin)} for ${escapeHtml(rowSeasonLabel(a.row))} and ${fmtPct(b.summary.medianWin)} for ${escapeHtml(rowSeasonLabel(b.row))}. Treat this as descriptive evidence, not a causal player ranking.`);
 }
 
 function renderPlayerCards(selected) {
@@ -297,18 +300,21 @@ function renderPlayerCards(selected) {
     .html(d => {
       const row = d.row;
       const summary = getSimilaritySummary(row);
+      const salary = Number.isFinite(row.salary_m) ? `${fmtMoney(row.salary_m)}M` : "Not listed";
       return `
         <div class="player-card-heading">
           <span class="side-pill">Player ${d.side}</span>
           <h3>${escapeHtml(row.player)}</h3>
-          <p>${row.year} ${escapeHtml(row.team)} &middot; ${escapeHtml(row.pos || row.position_group || "")}</p>
+          <p><strong>Player-season:</strong> ${escapeHtml(rowSeasonLabel(row))} &middot; ${escapeHtml(row.pos || row.position_group || "")}</p>
         </div>
         <dl class="stat-list">
           <div><dt>Team win %</dt><dd>${fmtPct(row.win_pct)}</dd></div>
-          <div><dt>Comparable-season median</dt><dd>${fmtPct(summary.medianWin)}</dd></div>
-          <div><dt>Strong-team comp share</dt><dd>${fmtPct(summary.highShare)}</dd></div>
-          <div><dt>Role dimensions</dt><dd>${fmtNum(row.role_category_count || 0)}</dd></div>
+          <div><dt title="Median team win percentage among statistically similar player-seasons.">Comparable-season median</dt><dd>${fmtPct(summary.medianWin)}</dd></div>
+          <div><dt title="Share of similar player-seasons from high-winning teams.">Strong-team comp share</dt><dd>${fmtPct(summary.highShare)}</dd></div>
+          <div><dt title="Number of strong role areas in this one player-season.">Role dimensions</dt><dd>${fmtNum(row.role_category_count || 0)}</dd></div>
+          <div><dt>Listed salary</dt><dd>${salary}</dd></div>
         </dl>
+        <p class="card-note">Descriptive player-season context only. Salary reflects contracts and timing, not a complete value model.</p>
         <div class="badge-row">
           <strong class="badge-label">Role labels</strong>
           ${roleBadge("Profile", row.profile_group || "Unlabeled")}
@@ -387,9 +393,10 @@ function renderRoleUniverse(selected) {
     .attr("cy", d => y(d.universe.y))
     .attr("r", d => r(d.minutes_per_game))
     .attr("fill", d => winBucketColors[d.team_success_bucket] || "#8f9bad")
-    .attr("opacity", d => d.team_success_bucket === "High-winning teams" ? .58 : .34)
+    .attr("opacity", d => d.team_success_bucket === "High-winning teams" ? .46 : .26)
     .on("mousemove", (event, d) => showTooltip(event, [
-      `<strong>${d.player}</strong> (${d.year}, ${d.team})`,
+      `<strong>${rowSeasonLabel(d)}</strong>`,
+      "One mark = one player-season",
       `Team win context: ${fmtPct(d.win_pct)}`,
       `Scoring load: ${Math.round(d.universe.x)}th percentile`,
       `Non-scoring contribution: ${Math.round(d.universe.y)}th percentile`,
@@ -439,7 +446,7 @@ function renderRoleUniverse(selected) {
   selectedRows.forEach(row => {
     const item = legend.append("span");
     item.append("i").attr("class", "swatch selected-swatch").style("border-color", compareColors[row.side]);
-    item.append("b").text(`Player ${row.side}: ${row.player}`);
+    item.append("b").text(`Player ${row.side}: ${rowSeasonLabel(row)}`);
   });
 }
 
@@ -537,16 +544,16 @@ function renderRoleShape(selected) {
     .join("g")
     .attr("class", "role-shape-points")
     .selectAll("circle")
-    .data(d => d.values.map(value => ({ ...value, side: d.side, player: d.player })))
+    .data(d => d.values.map(value => ({ ...value, side: d.side, row: d.row })))
     .join("circle")
     .attr("cx", d => Math.cos(angle(d.key) - Math.PI / 2) * radial(d.percentile))
     .attr("cy", d => Math.sin(angle(d.key) - Math.PI / 2) * radial(d.percentile))
     .attr("r", 4)
     .attr("fill", d => compareColors[d.side])
     .on("mousemove", (event, d) => showTooltip(event, [
-      `<strong>${d.player}</strong>`,
+      `<strong>Player ${d.side}: ${rowSeasonLabel(d.row)}</strong>`,
       `${d.label}: ${ordinal(Math.round(d.percentile))} percentile`,
-      `Actual: ${d.format(d.actual)} ${d.unit}`
+      `Actual player-season value: ${d.format(d.actual)} ${d.unit}`
     ].join("<br>")))
     .on("mouseleave", hideTooltip);
 
@@ -617,8 +624,8 @@ function renderSimilarityConstellation(selected) {
       .attr("r", 16)
       .attr("fill", compareColors[item.side])
       .on("mousemove", event => showTooltip(event, [
-        `<strong>Player ${item.side}: ${item.row.player}</strong>`,
-        `${item.row.year} ${item.row.team}`,
+        `<strong>Player ${item.side}: ${rowSeasonLabel(item.row)}</strong>`,
+        "Selected player-season",
         `Team win %: ${fmtPct(item.row.win_pct)}`
       ].join("<br>")))
       .on("mouseleave", hideTooltip);
@@ -643,9 +650,11 @@ function renderSimilarityConstellation(selected) {
       .attr("stroke", "#fff")
       .attr("stroke-width", 1.5)
       .on("mousemove", (event, d) => showTooltip(event, [
-        `<strong>${d.player}</strong> (${d.year}, ${d.team})`,
+        `<strong>${rowSeasonLabel(d)}</strong>`,
+        "Similar player-season profile",
         `Team win %: ${fmtPct(d.win_pct)}`,
         `Similarity distance: ${d3.format(".2f")(d.distance)}`,
+        "Distance means statistical-profile similarity, not quality.",
         `Minutes/game: ${d3.format(".1f")(d.minutes_per_game)}`
       ].join("<br>")))
       .on("mouseleave", hideTooltip);
@@ -658,6 +667,9 @@ function renderSimilarityConstellation(selected) {
     item.append("i").attr("class", "swatch").style("background", color(bucket));
     item.append("b").text(bucket);
   });
+  container.append("p")
+    .attr("class", "chart-footnote")
+    .text("Descriptive, not causal: distance uses box-score profile similarity across reviewed player-seasons.");
 }
 
 function renderWinningBands(selected) {
@@ -733,9 +745,10 @@ function renderWinningBands(selected) {
         .attr("r", 6)
         .attr("fill", compareColors[selection.side])
         .on("mousemove", event => showTooltip(event, [
-          `<strong>Player ${selection.side}: ${selection.row.player}</strong>`,
+          `<strong>Player ${selection.side}: ${rowSeasonLabel(selection.row)}</strong>`,
           `${metric.label}: ${metric.format(value)} ${metric.unit}`,
-          `Strong-team middle band: ${metric.format(metric.q1)} to ${metric.format(metric.q3)}`
+          `Strong-team middle band: ${metric.format(metric.q1)} to ${metric.format(metric.q3)}`,
+          "Descriptive benchmark only; not causal proof."
         ].join("<br>")))
         .on("mouseleave", hideTooltip);
 
@@ -753,7 +766,7 @@ function renderWinningBands(selected) {
     .attr("class", "band-caption")
     .attr("x", 0)
     .attr("y", innerHeight + 30)
-    .text("Shaded ranges are descriptive benchmarks from high-winning-team player-seasons.");
+    .text("Shaded ranges are descriptive benchmarks from high-winning-team player-seasons, not causal targets.");
 }
 
 function renderFingerprintChart(selected) {
@@ -822,9 +835,10 @@ function renderFingerprintChart(selected) {
     .attr("fill", d => compareColors[d.side])
     .attr("opacity", .88)
     .on("mousemove", (event, d) => showTooltip(event, [
-      `<strong>Player ${d.side}: ${selected.find(item => item.side === d.side)?.row.player || ""}</strong>`,
+      `<strong>Player ${d.side}: ${rowSeasonLabel(selected.find(item => item.side === d.side)?.row || {})}</strong>`,
       `${d.metric.label}: ${ordinal(Math.round(d.percentile))} percentile`,
-      `Actual value: ${d.metric.format(d.actual)} ${d.metric.unit}`
+      `Actual player-season value: ${d.metric.format(d.actual)} ${d.metric.unit}`,
+      d.metric.definition || "Percentile is descriptive, not a grade."
     ].join("<br>")))
     .on("mouseleave", hideTooltip);
 
@@ -850,7 +864,7 @@ function renderFingerprintChart(selected) {
   selected.forEach(item => {
     const entry = legend.append("span");
     entry.append("i").attr("class", "swatch").style("background", compareColors[item.side]);
-    entry.append("b").text(`Player ${item.side}: ${item.row.player}`);
+    entry.append("b").text(`Player ${item.side}: ${rowSeasonLabel(item.row)}`);
   });
 }
 
@@ -864,16 +878,18 @@ function renderSimilarityContext(selected) {
     const matches = getSimilarRows(item.row, 40);
     const summary = summarizeSimilarityMatches(matches, item.row);
     const closest = matches[0];
+    const lowerCost = findLowerCostMatch(item.row, matches);
     const block = context.append("article").attr("class", "similarity-block");
-    block.append("h3").text(`${item.row.player}, ${item.row.year} ${item.row.team}`);
-    block.append("p").html(`Nearest ${summary.count} comparable player-seasons had a <strong>${fmtPct(summary.medianWin)}</strong> median team win %, with <strong>${fmtPct(summary.highShare)}</strong> on high-winning teams.`);
+    block.append("h3").text(rowSeasonLabel(item.row));
+    block.append("p").html(`Nearest ${summary.count} comparable player-seasons had a <strong>${fmtPct(summary.medianWin)}</strong> median team win %, with <strong>${fmtPct(summary.highShare)}</strong> on high-winning teams. Descriptive context only, not a causal player ranking.`);
 
     const stats = block.append("dl").attr("class", "similarity-stat-grid");
     [
       ["Team win %", fmtPct(item.row.win_pct)],
-      ["Comparable median", fmtPct(summary.medianWin)],
-      ["Strong-team share", fmtPct(summary.highShare)],
-      ["Closest distance", closest ? d3.format(".2f")(closest.distance) : "--"]
+      ["Comparable-season median", fmtPct(summary.medianWin)],
+      ["Strong-team comp share", fmtPct(summary.highShare)],
+      ["Similarity distance", closest ? d3.format(".2f")(closest.distance) : "--"],
+      ["Listed salary", Number.isFinite(item.row.salary_m) ? `${fmtMoney(item.row.salary_m)}M` : "Not listed"]
     ].forEach(([label, value]) => {
       const cell = stats.append("div");
       cell.append("dt").text(label);
@@ -883,21 +899,27 @@ function renderSimilarityContext(selected) {
     if (closest) {
       block.append("p")
         .attr("class", "closest-note")
-        .html(`Closest profile: <strong>${escapeHtml(closest.player)} (${closest.year} ${escapeHtml(closest.team)})</strong>, ${fmtPct(closest.win_pct)} team win %.`);
+        .html(`Closest profile: <strong>${escapeHtml(rowSeasonLabel(closest))}</strong>, ${fmtPct(closest.win_pct)} team win %. Similarity distance is statistical-profile similarity, not player quality.`);
+    }
+
+    if (lowerCost) {
+      block.append("p")
+        .attr("class", "salary-note")
+        .html(`Value-scouting note: among similar profiles with listed salary, <strong>${escapeHtml(rowSeasonLabel(lowerCost))}</strong> is a lower-cost comparable season (${fmtMoney(lowerCost.salary_m)}M vs. ${fmtMoney(item.row.salary_m)}M). This is not a roster-construction model.`);
     }
   });
 
   selected.forEach(item => {
     const matches = getSimilarRows(item.row, 5);
     const block = table.append("article").attr("class", "match-block");
-    block.append("h3").text(`Player ${item.side}: ${item.row.player}`);
+    block.append("h3").text(`Player ${item.side}: ${rowSeasonLabel(item.row)}`);
     const rows = block.append("table").attr("class", "mini-table");
-    rows.append("thead").html("<tr><th>Match</th><th>Team</th><th>Win %</th></tr>");
+    rows.append("thead").html("<tr><th>Match player-season</th><th>Team</th><th>Win %</th><th>Distance</th><th>Salary</th></tr>");
     const body = rows.append("tbody");
     body.selectAll("tr")
       .data(matches)
       .join("tr")
-      .html(match => `<td>${escapeHtml(match.player)} (${match.year})</td><td>${escapeHtml(match.team)}</td><td>${fmtPct(match.win_pct)}</td>`);
+      .html(match => `<td>${escapeHtml(match.player)} (${match.year})</td><td>${escapeHtml(match.team)}</td><td>${fmtPct(match.win_pct)}</td><td>${d3.format(".2f")(match.distance)}</td><td>${Number.isFinite(match.salary_m) ? `${fmtMoney(match.salary_m)}M` : "--"}</td>`);
   });
 }
 
@@ -922,6 +944,11 @@ function getSimilarRows(row, limit) {
     .map(candidate => ({ ...candidate, distance: similarityDistance(row, candidate) }))
     .sort((a, b) => d3.ascending(a.distance, b.distance))
     .slice(0, limit);
+}
+
+function findLowerCostMatch(row, matches) {
+  if (!Number.isFinite(row.salary_m)) return null;
+  return matches.find(match => Number.isFinite(match.salary_m) && match.salary_m < row.salary_m);
 }
 
 function hasSimilarityVector(row) {
@@ -968,8 +995,14 @@ function shortPlayerLabel(name) {
   return parts[parts.length - 1];
 }
 
+function rowSeasonLabel(row) {
+  if (!row || !row.player) return "";
+  return `${row.player}, ${row.year} ${row.team}`;
+}
+
 function roleBadge(category, value) {
-  return `<span class="role-badge"><b>${escapeHtml(category)}</b>${escapeHtml(value)}</span>`;
+  const label = displayRoleLabel(value);
+  return `<span class="role-badge" title="${escapeHtml(roleDefinition(category, label))}"><b>${escapeHtml(category)}</b>${escapeHtml(label)}</span>`;
 }
 
 function shotRoleLabel(value) {
@@ -980,6 +1013,19 @@ function shotRoleLabel(value) {
 function eventRoleLabel(value) {
   if (!value || value === "Other core player") return "Standard event profile";
   return value;
+}
+
+function displayRoleLabel(value) {
+  return String(value || "Unlabeled")
+    .replace(/steals \+ blocks/g, "defensive events")
+    .replace(/Standard event profile/g, "Standard defensive-event profile");
+}
+
+function roleDefinition(category, value) {
+  if (category === "Profile") return "Broad, mixed, or narrow role breadth for this one player-season.";
+  if (category === "Shot role") return "Efficient lower-shot means at-or-above median eFG% and below-median shot attempts in this dataset.";
+  if (category === "Event role") return "Defensive events are steals + blocks. This label describes box-score events, not complete defense.";
+  return `${value} describes this player-season profile, not overall player quality.`;
 }
 
 function selectedUniverseLabels(rows, xScale, yScale, innerWidth, innerHeight) {
@@ -1068,7 +1114,7 @@ function renderBarChart(data) {
     .attr("width", x.bandwidth())
     .on("mousemove", (event, d) => showTooltip(event, [
       `<strong>${d.data.bucket}</strong>`,
-      d.key,
+      displayRoleLabel(d.key),
       `${fmtPct(d[1] - d[0])} of bucket`
     ].join("<br>")))
     .on("mouseleave", hideTooltip);
@@ -1077,7 +1123,7 @@ function renderBarChart(data) {
   profiles.forEach(profile => {
     const item = legend.append("span");
     item.append("i").attr("class", "swatch").style("background", colors[profile] || "#789");
-    item.append("b").text(profile);
+    item.append("b").text(displayRoleLabel(profile));
   });
 }
 
@@ -1143,14 +1189,15 @@ function renderScatter(data, config) {
     .join("circle")
     .attr("cx", d => x(d.x))
     .attr("cy", d => y(d.y))
-    .attr("r", 4)
+    .attr("r", 3.2)
     .attr("fill", d => color(d[config.color]))
-    .attr("opacity", .58)
+    .attr("opacity", .42)
     .on("mousemove", (event, d) => showTooltip(event, [
-      `<strong>${d.player}</strong> (${d.year}, ${d.team})`,
+      `<strong>${rowSeasonLabel(d)}</strong>`,
+      "One mark = one player-season",
       `${config.xLabel}: ${d3.format(".1f")(d.x)}`,
       `${config.yLabel}: ${config.y.includes("pct") ? fmtPct(d.y) : d3.format(".2f")(d.y)}`,
-      d[config.color]
+      displayRoleLabel(d[config.color] || "Unlabeled")
     ].join("<br>")))
     .on("mouseleave", hideTooltip);
 
@@ -1166,7 +1213,7 @@ function renderScatter(data, config) {
     .attr("stroke", d => compareColors[d.side])
     .attr("stroke-width", 3)
     .on("mousemove", (event, d) => showTooltip(event, [
-      `<strong>Player ${d.side}: ${d.player}</strong> (${d.year}, ${d.team})`,
+      `<strong>Player ${d.side}: ${rowSeasonLabel(d)}</strong>`,
       `${config.xLabel}: ${d3.format(".1f")(d.x)}`,
       `${config.yLabel}: ${config.y.includes("pct") ? fmtPct(d.y) : d3.format(".2f")(d.y)}`
     ].join("<br>")))
@@ -1176,13 +1223,16 @@ function renderScatter(data, config) {
   groups.slice(0, 8).forEach(group => {
     const item = legend.append("span");
     item.append("i").attr("class", "swatch").style("background", color(group));
-    item.append("b").text(group || "Unlabeled");
+    item.append("b").text(displayRoleLabel(group || "Unlabeled"));
   });
   selected.forEach(row => {
     const item = legend.append("span");
     item.append("i").attr("class", "swatch selected-swatch").style("border-color", compareColors[row.side]);
-    item.append("b").text(`Player ${row.side}: ${row.player}`);
+    item.append("b").text(`Player ${row.side}: ${rowSeasonLabel(row)}`);
   });
+  container.append("p")
+    .attr("class", "chart-footnote")
+    .text("Each dot is one player-season. Color groups provide context; the chart shows association, not causation.");
 }
 
 function renderExamplesForView(viewName) {
@@ -1246,9 +1296,9 @@ function exampleNote(row, viewName) {
     return `${fmtPct(row.efg_pct)} eFG on ${d3.format(".1f")(row.fga_per_game)} FGA/game for a ${fmtPct(row.win_pct)} team.`;
   }
   if (viewName === "defenseOverlap") {
-    return `${d3.format(".2f")(row.stocks_per_36)} steals + blocks per 36 while not being a top-quartile scorer; team win % was ${fmtPct(row.win_pct)}.`;
+    return `${d3.format(".2f")(row.stocks_per_36)} defensive events (steals + blocks) per 36 while not being a top-quartile scorer; team win % was ${fmtPct(row.win_pct)}.`;
   }
-  return `${row.profile_group} with ${fmtNum(row.role_category_count)} role categories on a ${fmtPct(row.win_pct)} team.`;
+  return `${row.profile_group} with ${fmtNum(row.role_category_count)} role dimensions on a ${fmtPct(row.win_pct)} team.`;
 }
 
 function showTooltip(event, html) {

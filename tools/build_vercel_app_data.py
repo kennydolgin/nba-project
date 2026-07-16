@@ -98,7 +98,7 @@ def build_map_csv():
 
 
 PLAYER_SEASON_FIELDS = [
-    "year", "player", "team", "pos", "position_group",
+    "year", "player", "team", "pos", "position_group", "salary_m",
     "minutes_per_game", "points_per_game", "points_per_36", "fga_per_game", "efg_pct",
     "assists_per_36", "rebounds_per_36", "stocks_per_36", "turnovers_per_36",
     "role_category_count", "win_pct",
@@ -165,7 +165,7 @@ def build_app_json():
             "year", "player", "team", "fga_per_game", "efg_pct", "team_success_bucket"
         ]),
         "defenseScatter": slim_rows(defense_scatter, [
-            "year", "player", "team", "points_per_game", "steals_blocks_per_36", "defensive_event_profile"
+            "year", "player", "team", "points_per_game", "steals_blocks_per_36", "defensive_event_profile", "team_success_bucket"
         ]),
         "examples": examples,
     }

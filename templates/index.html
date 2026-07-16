@@ -26,10 +26,19 @@
         <div class="panel-heading">
           <div>
             <p class="eyebrow">Player comparison</p>
-            <h2>Which player-season profile looks more like winning basketball?</h2>
+            <h2>How do two player-season profiles compare in historical team-win context?</h2>
           </div>
-          <p>Select two player-seasons, then compare role shape, statistical neighbors, and team context. Results are descriptive, not causal rankings.</p>
+          <p>Select two player-seasons, then compare role shape, statistical neighbors, and team context. Results are descriptive, not causal player rankings.</p>
         </div>
+
+        <aside class="reading-cue" aria-label="How to read this page">
+          <strong>How to read this page</strong>
+          <ol>
+            <li>Choose two players and seasons.</li>
+            <li>Compare cards and fingerprint bars.</li>
+            <li>Use similar seasons and closest matches for historical context.</li>
+          </ol>
+        </aside>
 
         <div class="compare-controls" aria-label="Player comparison controls">
           <div class="compare-control-group">
@@ -47,6 +56,7 @@
           </div>
         </div>
         <datalist id="playerOptions"></datalist>
+        <p class="helper-text">A player-season is one player on one team in one NBA season. Role labels describe that season's statistical profile, not overall player quality or permanent identity.</p>
       </div>
 
       <div id="comparisonInsight" class="comparison-insight"></div>
@@ -58,8 +68,9 @@
             <p class="eyebrow">Role map</p>
             <h2>Player-seasons by scoring load and role breadth</h2>
           </div>
-          <p>Each point is one player-season. Horizontal position shows scoring load; vertical position shows non-scoring contribution. Color shows team win context.</p>
+          <p>Each point is one player-season. Horizontal position shows scoring load; vertical position shows non-scoring contribution. Color shows team win context. Hover for exact values.</p>
         </div>
+        <p class="definition-strip">Role breadth means the number of strong role areas. eFG% is shooting efficiency accounting for 3-pointers. Per 36 means a rate normalized to 36 minutes.</p>
         <div id="roleUniverseChart" class="chart universe-chart"></div>
       </section>
 
@@ -70,8 +81,9 @@
               <p class="eyebrow">Archetype radar</p>
               <h2>Role shape for the selected seasons</h2>
             </div>
-            <p>Each spoke is a league percentile. The value strip keeps the underlying box-score stats visible.</p>
+            <p>Each spoke is a league percentile for the selected player-season. The value strip keeps the underlying box-score stats visible. Role labels are descriptions, not grades.</p>
           </div>
+          <p class="definition-strip">Defensive events are steals + blocks; they are useful box-score events but do not capture all defense.</p>
           <div id="roleShapeChart" class="chart role-shape-chart"></div>
         </div>
 
@@ -81,7 +93,7 @@
               <p class="eyebrow">Similar seasons constellation</p>
               <h2>Closest historical player-season neighbors</h2>
             </div>
-            <p>Dots are similar statistical profiles; hover for names and use the closest-matches table for readable details. Distance does not measure player quality or causal impact.</p>
+            <p>Dots are similar player-season statistical profiles; hover for exact values and use the closest-matches table for readable details. Similarity distance is profile similarity, not player quality or causal impact.</p>
           </div>
           <div id="constellationChart" class="chart constellation-chart"></div>
         </div>
@@ -93,7 +105,7 @@
             <p class="eyebrow">High-winning benchmark bands</p>
             <h2>Where selected seasons sit against strong-team ranges</h2>
           </div>
-          <p>Shaded bands show the middle half of player-seasons from high-winning teams for each metric.</p>
+          <p>Shaded bands show the middle half of player-seasons from high-winning teams for each metric. Descriptive benchmark only; not proof that a metric caused wins.</p>
         </div>
         <div id="winningBandsChart" class="chart winning-bands-chart"></div>
       </section>
@@ -104,8 +116,9 @@
             <p class="eyebrow">Role fingerprint</p>
             <h2>Percentile profile by metric</h2>
           </div>
-          <p>Percentiles compare each selected player-season with all reviewed player-seasons in this dataset.</p>
+          <p>Percentiles compare each selected player-season with all reviewed player-seasons in this dataset. Hover bars for exact values.</p>
         </div>
+        <p class="definition-strip">Higher is descriptive, not always better: turnovers and shot volume can reflect role responsibility as well as mistakes or workload.</p>
         <div id="fingerprintChart" class="chart fingerprint-chart"></div>
       </section>
 
@@ -116,6 +129,7 @@
               <p class="eyebrow">Similar-season context</p>
               <h2>How comparable seasons lined up with winning</h2>
             </div>
+            <p>Comparable-season median is the median team win percentage among statistically similar player-seasons. Strong-team comp share is the share of those similar seasons from high-winning teams.</p>
           </div>
           <div id="similarContext"></div>
         </div>
@@ -126,6 +140,7 @@
               <p class="eyebrow">Closest matches</p>
               <h2>Historical seasons with a similar statistical shape</h2>
             </div>
+            <p>Closest matches are based on statistical-profile similarity. They are not player rankings or causal impact estimates.</p>
           </div>
           <div id="similarTable"></div>
         </div>

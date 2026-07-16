@@ -106,8 +106,8 @@
             </tr>
             <tr>
               <td><code>stocks_per_36</code></td>
-              <td><strong>Defensive events</strong>, <strong>events</strong>, <strong>stocks</strong>, or <strong>steals + blocks</strong> per 36 minutes.</td>
-              <td>Summarizes box-score defensive event production.</td>
+              <td><strong>Defensive events (steals + blocks)</strong> per 36 minutes.</td>
+              <td>Summarizes useful box-score defensive event production, but does not capture all defense.</td>
             </tr>
             <tr>
               <td><code>turnovers_per_36</code></td>
@@ -141,7 +141,7 @@
         <p><strong>Role labels</strong> are the small tags on each player card. They come from three fields: <code>profile_group</code>, <code>efficient_lower_shot_label</code>, and <code>defensive_event_profile</code>.</p>
         <p><code>profile_group</code> uses <code>role_category_count</code>: 0-1 dimensions is <strong>Narrow profile</strong>, 2-3 is <strong>Mixed profile</strong>, and 4-6 is <strong>Balanced profile</strong>.</p>
         <p><code>efficient_lower_shot_label</code> is <strong>Efficient lower-shot player</strong> when a player-season is at or above median eFG% and below median FGA/game. On the player cards, rows outside that condition appear as <strong>Standard shot profile</strong>.</p>
-        <p><code>defensive_event_profile</code> compares top-quartile scoring with top-quartile steals-plus-blocks production. Labels include <strong>Top steals + blocks + top scorer</strong>, <strong>Top steals + blocks, not top scorer</strong>, <strong>Top scorer, not top steals + blocks</strong>, and, on the player cards, <strong>Standard event profile</strong> for rows outside those top-quartile categories.</p>
+        <p><code>defensive_event_profile</code> compares top-quartile scoring with top-quartile defensive events (steals + blocks). Labels include <strong>Top defensive events + top scorer</strong>, <strong>Top defensive events, not top scorer</strong>, <strong>Top scorer, not top defensive events</strong>, and, on the player cards, <strong>Standard defensive-event profile</strong> for rows outside those top-quartile categories.</p>
       </article>
 
       <article class="panel methodology-card">
@@ -203,7 +203,7 @@
       <div class="method-list">
         <article>
           <h3>Role map</h3>
-          <p>The role map was previously called the Winning Profile Galaxy. Each point is one player-season. The x-axis, <strong>scoring load percentile</strong>, averages points-per-36 percentile and FGA-per-game percentile. The y-axis, <strong>non-scoring contribution percentile</strong>, averages assists, rebounds, stocks, eFG%, and role-dimensions percentiles. Color shows team-success bucket. Rings mark Player A and Player B.</p>
+          <p>The role map was previously called the Winning Profile Galaxy. Each point is one player-season. The x-axis, <strong>scoring load percentile</strong>, averages points-per-36 percentile and FGA-per-game percentile. The y-axis, <strong>non-scoring contribution percentile</strong>, averages assists, rebounds, defensive events, eFG%, and role-dimensions percentiles. Color shows team-success bucket. Rings mark Player A and Player B.</p>
         </article>
         <article>
           <h3>Archetype radar</h3>
@@ -211,7 +211,7 @@
         </article>
         <article>
           <h3>Similar seasons constellation</h3>
-          <p>The constellation shows the closest historical player-season neighbors for each selected season. Nearby labeled names had similar percentile profiles. <strong>Similarity distance</strong> is Euclidean distance across scoring, shot volume, assists, rebounds, stocks, eFG%, and role dimensions, after converting each metric to a 0-100 percentile. Smaller distance means more statistically similar. It does not measure player quality or causal impact.</p>
+          <p>The constellation shows the closest historical player-season neighbors for each selected season. Nearby labeled names had similar percentile profiles. <strong>Similarity distance</strong> is Euclidean distance across scoring, shot volume, assists, rebounds, defensive events, eFG%, and role dimensions, after converting each metric to a 0-100 percentile. Smaller distance means more statistically similar. It does not measure player quality or causal impact.</p>
         </article>
         <article>
           <h3>High-winning benchmark bands</h3>
@@ -234,7 +234,7 @@
         <h2>Summary questions, bucket shares, and scatter plots</h2>
         <p>On the Team Map page, the <strong>summary question</strong> dropdown changes the bar chart, examples, and scatter plot below the map. The three choices are profile mix by team success, efficient lower-shot contributors, and defensive-event leaders.</p>
         <p>The stacked bars calculate shares within each team-success bucket. This prevents high-volume buckets from dominating the display and makes profile mix easier to compare across low-, middle-, and high-winning teams.</p>
-        <p>The scatter plots show direct bivariate evidence: scoring volume versus team win percentage, shot volume versus effective field-goal percentage, and scoring versus steals plus blocks. Hovering a point shows the player, season, team, selected x/y values, and label.</p>
+        <p>The scatter plots show direct bivariate evidence: scoring volume versus team win percentage, shot volume versus effective field-goal percentage, and scoring versus defensive events (steals + blocks). Hovering a point shows the player, season, team, selected x/y values, and label.</p>
         <p><strong>Concrete examples</strong> are representative rows chosen from the active summary question. They are filtered to players with at least 15 minutes per game and selected to avoid repeating the same team or player when possible.</p>
       </article>
 

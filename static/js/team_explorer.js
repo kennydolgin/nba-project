@@ -13,10 +13,10 @@ var teamExplorerColors = {
 var teamViewConfig = {
   profileMix: {
     title: "Role profile mix by team success",
-    note: "Broader statistical profiles are somewhat more common on stronger teams, but this pattern is descriptive.",
+    note: "Broader player-season statistical profiles are somewhat more common on stronger teams, but this pattern is descriptive.",
     dataKey: "profileMix",
     scatterKey: "scoringScatter",
-    scatterTitle: "Scoring volume versus team win percentage",
+    scatterTitle: "Player-season scoring volume versus team win percentage",
     x: "points_per_game",
     y: "win_pct",
     color: "profile_group",
@@ -28,24 +28,24 @@ var teamViewConfig = {
     note: "High-winning teams have the largest share of efficient lower-shot player-seasons in this dataset.",
     dataKey: "efficientLowerShot",
     scatterKey: "efficiencyScatter",
-    scatterTitle: "Shot volume versus effective field-goal percentage",
+    scatterTitle: "Player-season shot volume versus shooting efficiency",
     x: "fga_per_game",
     y: "efg_pct",
     color: "team_success_bucket",
     xLabel: "Field-goal attempts per game",
-    yLabel: "Effective field-goal percentage"
+    yLabel: "eFG% (shooting efficiency)"
   },
   defenseOverlap: {
     title: "Defensive-event leaders who are not top scorers",
-    note: "Most top steals-plus-blocks player-seasons are not top-quartile scoring seasons.",
+    note: "Most top defensive-event player-seasons are not top-quartile scoring seasons. Steals + blocks are useful box-score events, not complete defense.",
     dataKey: "defenseOverlap",
     scatterKey: "defenseScatter",
-    scatterTitle: "Scoring versus steals + blocks per 36 minutes",
+    scatterTitle: "Player-season scoring versus defensive events per 36",
     x: "points_per_game",
     y: "steals_blocks_per_36",
-    color: "defensive_event_profile",
+    color: "team_success_bucket",
     xLabel: "Points per game",
-    yLabel: "Steals + blocks per 36"
+    yLabel: "Defensive events (steals + blocks) per 36"
   }
 };
 
@@ -175,7 +175,7 @@ function renderTeamBarChart(data) {
     .on("mousemove", function(d) {
       showTeamTooltip(d3.event, [
         "<strong>" + escapeTeamHtml(d.data.bucket) + "</strong>",
-        escapeTeamHtml(d.key),
+        escapeTeamHtml(displayTeamRoleLabel(d.key)),
         teamFmtPct(d[1] - d[0]) + " of bucket"
       ].join("<br>"));
     })
@@ -185,7 +185,7 @@ function renderTeamBarChart(data) {
   profiles.forEach(function(profile) {
     var item = legend.append("span");
     item.append("i").attr("class", "swatch").style("background", teamExplorerColors[profile] || "#789");
-    item.append("b").text(profile);
+    item.append("b").text(displayTeamRoleLabel(profile));
   });
 }
 
@@ -245,15 +245,16 @@ function renderTeamScatter(data, config) {
     .append("circle")
     .attr("cx", function(d) { return x(d.x); })
     .attr("cy", function(d) { return y(d.y); })
-    .attr("r", 4)
+    .attr("r", 3.2)
     .attr("fill", function(d) { return color(d[config.color]); })
-    .attr("opacity", 0.58)
+    .attr("opacity", 0.42)
     .on("mousemove", function(d) {
       showTeamTooltip(d3.event, [
-        "<strong>" + escapeTeamHtml(d.player) + "</strong> (" + escapeTeamHtml(d.year) + ", " + escapeTeamHtml(d.team) + ")",
+        "<strong>" + escapeTeamHtml(teamRowSeasonLabel(d)) + "</strong>",
+        "One mark = one player-season",
         escapeTeamHtml(config.xLabel) + ": " + d3.format(".1f")(d.x),
         escapeTeamHtml(config.yLabel) + ": " + (config.y.indexOf("pct") >= 0 ? teamFmtPct(d.y) : d3.format(".2f")(d.y)),
-        escapeTeamHtml(d[config.color] || "Unlabeled")
+        escapeTeamHtml(displayTeamRoleLabel(d[config.color] || "Unlabeled"))
       ].join("<br>"));
     })
     .on("mouseleave", hideTeamTooltip);
@@ -262,8 +263,11 @@ function renderTeamScatter(data, config) {
   groups.slice(0, 8).forEach(function(group) {
     var item = legend.append("span");
     item.append("i").attr("class", "swatch").style("background", color(group));
-    item.append("b").text(group || "Unlabeled");
+    item.append("b").text(displayTeamRoleLabel(group || "Unlabeled"));
   });
+  container.append("p")
+    .attr("class", "chart-footnote")
+    .text("Each dot is one player-season. Color groups provide context; the chart shows association, not causation.");
 }
 
 function renderTeamExamples(viewName) {
@@ -327,9 +331,9 @@ function teamExampleNote(row, viewName) {
     return teamFmtPct(row.efg_pct) + " eFG on " + d3.format(".1f")(row.fga_per_game) + " FGA/game for a " + teamFmtPct(row.win_pct) + " team.";
   }
   if (viewName === "defenseOverlap") {
-    return d3.format(".2f")(row.stocks_per_36) + " steals + blocks per 36 while not being a top-quartile scorer; team win % was " + teamFmtPct(row.win_pct) + ".";
+    return d3.format(".2f")(row.stocks_per_36) + " defensive events (steals + blocks) per 36 while not being a top-quartile scorer; team win % was " + teamFmtPct(row.win_pct) + ".";
   }
-  return row.profile_group + " with " + teamFmtNum(row.role_category_count) + " role categories on a " + teamFmtPct(row.win_pct) + " team.";
+  return row.profile_group + " with " + teamFmtNum(row.role_category_count) + " role dimensions on a " + teamFmtPct(row.win_pct) + " team.";
 }
 
 function uniqueValues(values) {
@@ -348,6 +352,16 @@ function showTeamTooltip(event, html) {
     .style("left", (event.clientX + 14) + "px")
     .style("top", (event.clientY + 14) + "px")
     .html(html);
+}
+
+function teamRowSeasonLabel(row) {
+  return (row.player || "") + ", " + (row.year || "") + " " + (row.team || "");
+}
+
+function displayTeamRoleLabel(value) {
+  return String(value || "Unlabeled")
+    .replace(/steals \+ blocks/g, "defensive events")
+    .replace(/Standard event profile/g, "Standard defensive-event profile");
 }
 
 function hideTeamTooltip() {
