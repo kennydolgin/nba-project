@@ -879,7 +879,7 @@ function renderSimilarityContext(selected) {
     const matches = getSimilarRows(item.row, 40);
     const summary = summarizeSimilarityMatches(matches, item.row);
     const closest = matches[0];
-    const lowerCost = findLowerCostMatch(item.row, matches);
+    const salaryMatch = findSameYearSalaryMatch(item.row, matches);
     const block = context.append("article").attr("class", "similarity-block");
     block.append("h3").text(rowSeasonLabel(item.row));
     block.append("p").html(`Nearest ${summary.count} comparable player-seasons had a <strong>${fmtPct(summary.medianWin)}</strong> median team win %, with <strong>${fmtPct(summary.highShare)}</strong> on high-winning teams. Descriptive context only, not a causal player ranking.`);
@@ -903,10 +903,10 @@ function renderSimilarityContext(selected) {
         .html(`Closest profile: <strong>${escapeHtml(rowSeasonLabel(closest))}</strong>, ${fmtPct(closest.win_pct)} team win %. Similarity distance is statistical-profile similarity, not player quality.`);
     }
 
-    if (lowerCost) {
+    if (salaryMatch) {
       block.append("p")
         .attr("class", "salary-note")
-        .html(`Value-scouting note: among similar profiles from the same season year with listed salary, <strong>${escapeHtml(rowSeasonLabel(lowerCost))}</strong> is a lower-cost comparable season (${fmtMoney(lowerCost.salary_m)}M vs. ${fmtMoney(item.row.salary_m)}M). This is not a roster-construction model.`);
+        .html(`Salary context note: among similar profiles from the same season year with listed salary, <strong>${escapeHtml(rowSeasonLabel(salaryMatch))}</strong> is a comparable season (${fmtMoney(salaryMatch.salary_m)}M vs. ${fmtMoney(item.row.salary_m)}M for the selected season; ${salaryComparisonLabel(item.row.salary_m, salaryMatch.salary_m)}). This is not a roster-construction model.`);
     }
   });
 
@@ -947,13 +947,18 @@ function getSimilarRows(row, limit) {
     .slice(0, limit);
 }
 
-function findLowerCostMatch(row, matches) {
+function findSameYearSalaryMatch(row, matches) {
   if (!Number.isFinite(row.salary_m)) return null;
   return matches.find(match => (
     Number.isFinite(match.salary_m)
     && +match.year === +row.year
-    && match.salary_m < row.salary_m
   ));
+}
+
+function salaryComparisonLabel(selectedSalary, matchSalary) {
+  const diff = matchSalary - selectedSalary;
+  if (Math.abs(diff) < 0.25) return "similar listed salary";
+  return diff > 0 ? "higher listed salary" : "lower listed salary";
 }
 
 function hasSimilarityVector(row) {
