@@ -263,8 +263,9 @@ function updateComparison() {
   renderFingerprintChart(selected);
   renderSimilarityContext(selected);
 
-  if (appData) {
-    const viewName = d3.select("#viewSelect").property("value") || "profileMix";
+  const viewSelect = d3.select("#viewSelect");
+  if (appData && viewSelect.node() && d3.select("#scatterPlot").node()) {
+    const viewName = viewSelect.property("value") || "profileMix";
     const config = viewConfig[viewName];
     if (config && appData[config.scatterKey]) renderScatter(appData[config.scatterKey], config);
   }
