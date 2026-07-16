@@ -906,7 +906,7 @@ function renderSimilarityContext(selected) {
     if (lowerCost) {
       block.append("p")
         .attr("class", "salary-note")
-        .html(`Value-scouting note: among similar profiles with listed salary, <strong>${escapeHtml(rowSeasonLabel(lowerCost))}</strong> is a lower-cost comparable season (${fmtMoney(lowerCost.salary_m)}M vs. ${fmtMoney(item.row.salary_m)}M). This is not a roster-construction model.`);
+        .html(`Value-scouting note: among similar profiles from the same season year with listed salary, <strong>${escapeHtml(rowSeasonLabel(lowerCost))}</strong> is a lower-cost comparable season (${fmtMoney(lowerCost.salary_m)}M vs. ${fmtMoney(item.row.salary_m)}M). This is not a roster-construction model.`);
     }
   });
 
@@ -949,7 +949,11 @@ function getSimilarRows(row, limit) {
 
 function findLowerCostMatch(row, matches) {
   if (!Number.isFinite(row.salary_m)) return null;
-  return matches.find(match => Number.isFinite(match.salary_m) && match.salary_m < row.salary_m);
+  return matches.find(match => (
+    Number.isFinite(match.salary_m)
+    && +match.year === +row.year
+    && match.salary_m < row.salary_m
+  ));
 }
 
 function hasSimilarityVector(row) {
