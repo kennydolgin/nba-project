@@ -880,6 +880,7 @@ function renderSimilarityContext(selected) {
     const summary = summarizeSimilarityMatches(matches, item.row);
     const closest = matches[0];
     const salaryMatch = findSameYearSalaryMatch(item.row, matches);
+    const lowerCostMatches = findLowerCostSimilarMatches(item.row, matches);
     const block = context.append("article").attr("class", "similarity-block");
     block.append("h3").text(rowSeasonLabel(item.row));
     block.append("p").html(`Nearest ${summary.count} comparable player-seasons had a <strong>${fmtPct(summary.medianWin)}</strong> median team win %, with <strong>${fmtPct(summary.highShare)}</strong> on high-winning teams. Descriptive context only, not a causal player ranking.`);
@@ -907,6 +908,17 @@ function renderSimilarityContext(selected) {
       block.append("p")
         .attr("class", "salary-note")
         .html(`Salary context note: among similar profiles from the same season year with listed salary, <strong>${escapeHtml(rowSeasonLabel(salaryMatch))}</strong> is a comparable season (${fmtMoney(salaryMatch.salary_m)}M vs. ${fmtMoney(item.row.salary_m)}M for the selected season; ${salaryComparisonLabel(item.row.salary_m, salaryMatch.salary_m)}). This is not a roster-construction model.`);
+    }
+
+    if (lowerCostMatches.length) {
+      block.append("p")
+        .attr("class", "salary-note")
+        .html("<strong>Lower-cost similar seasons:</strong> exploratory salary context among nearby statistical profiles. This is not a roster optimizer.");
+      const list = block.append("ul").attr("class", "lower-cost-list");
+      list.selectAll("li")
+        .data(lowerCostMatches)
+        .join("li")
+        .html(match => `<strong>${escapeHtml(rowSeasonLabel(match))}</strong>: ${fmtMoney(match.salary_m)}M listed salary, ${fmtPct(match.win_pct)} team win %, ${d3.format(".2f")(match.distance)} similarity distance.`);
     }
   });
 
@@ -953,6 +965,14 @@ function findSameYearSalaryMatch(row, matches) {
     Number.isFinite(match.salary_m)
     && +match.year === +row.year
   ));
+}
+
+function findLowerCostSimilarMatches(row, matches) {
+  if (!Number.isFinite(row.salary_m)) return [];
+  return matches
+    .filter(match => Number.isFinite(match.salary_m) && match.salary_m < row.salary_m - 0.25)
+    .sort((a, b) => d3.ascending(a.distance, b.distance) || d3.ascending(a.salary_m, b.salary_m))
+    .slice(0, 3);
 }
 
 function salaryComparisonLabel(selectedSalary, matchSalary) {
@@ -1199,9 +1219,9 @@ function renderScatter(data, config) {
     .join("circle")
     .attr("cx", d => x(d.x))
     .attr("cy", d => y(d.y))
-    .attr("r", 3.2)
+    .attr("r", 2.4)
     .attr("fill", d => color(d[config.color]))
-    .attr("opacity", .42)
+    .attr("opacity", .28)
     .on("mousemove", (event, d) => showTooltip(event, [
       `<strong>${rowSeasonLabel(d)}</strong>`,
       "One mark = one player-season",
@@ -1210,6 +1230,26 @@ function renderScatter(data, config) {
       displayRoleLabel(d[config.color] || "Unlabeled")
     ].join("<br>")))
     .on("mouseleave", hideTooltip);
+
+  const trend = buildMedianTrend(clean, 7);
+  if (trend.length > 1) {
+    const trendLine = d3.line()
+      .x(d => x(d.x))
+      .y(d => y(d.y));
+    g.append("path")
+      .datum(trend)
+      .attr("class", "scatter-trend-line")
+      .attr("d", trendLine);
+    g.selectAll(".scatter-trend-point")
+      .data(trend)
+      .join("circle")
+      .attr("class", "scatter-trend-point")
+      .attr("cx", d => x(d.x))
+      .attr("cy", d => y(d.y))
+      .attr("r", 3)
+      .append("title")
+      .text(d => `Median trend bin: ${d.count} player-seasons`);
+  }
 
   g.append("g")
     .selectAll("circle")
@@ -1242,7 +1282,27 @@ function renderScatter(data, config) {
   });
   container.append("p")
     .attr("class", "chart-footnote")
-    .text("Each dot is one player-season. Color groups provide context; the chart shows association, not causation.");
+    .text("Each dot is one player-season. The dashed line connects median y-values across x-axis bins to reduce overplotting; it shows association, not causation.");
+}
+
+function buildMedianTrend(rows, binCount) {
+  if (!rows.length) return [];
+  const [min, max] = d3.extent(rows, d => d.x);
+  if (!Number.isFinite(min) || !Number.isFinite(max) || min === max) return [];
+  const step = (max - min) / binCount;
+  return d3.range(binCount)
+    .map(index => {
+      const lower = min + step * index;
+      const upper = index === binCount - 1 ? max : lower + step;
+      const binRows = rows.filter(row => row.x >= lower && (index === binCount - 1 ? row.x <= upper : row.x < upper));
+      if (binRows.length < 4) return null;
+      return {
+        x: d3.mean(binRows, d => d.x),
+        y: d3.median(binRows, d => d.y),
+        count: binRows.length
+      };
+    })
+    .filter(Boolean);
 }
 
 function renderExamplesForView(viewName) {

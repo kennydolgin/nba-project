@@ -155,9 +155,22 @@ input[list] {
   background: #f3faf6;
 }
 
+.term-cue {
+  margin: 0 0 14px;
+  border: 1px solid #dbe4f0;
+  border-radius: 8px;
+  padding: 12px 14px;
+  background: #f8fafc;
+}
+
 .reading-cue strong {
   display: block;
   margin-bottom: 6px;
+}
+
+.term-cue strong {
+  display: block;
+  margin-bottom: 8px;
 }
 
 .reading-cue ol {
@@ -168,6 +181,37 @@ input[list] {
   padding-left: 18px;
   color: var(--muted);
   font-size: 13px;
+  line-height: 1.35;
+}
+
+.term-cue dl {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.map-term-cue dl {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.term-cue div {
+  min-width: 0;
+  border-left: 3px solid #c8d1dd;
+  padding-left: 9px;
+}
+
+.term-cue dt {
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.term-cue dd {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 12px;
   line-height: 1.35;
 }
 
@@ -313,6 +357,28 @@ input[list] {
 .similarity-block .closest-note {
   padding-top: 8px;
   border-top: 1px solid var(--line);
+}
+
+.lower-cost-list {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+
+.lower-cost-list li {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 10px;
+  background: #fbfcff;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.lower-cost-list strong {
+  color: var(--ink);
 }
 
 .side-pill {
@@ -567,6 +633,19 @@ input[list] {
 .fingerprint-guide {
   stroke: #e2e7ef;
   stroke-dasharray: 3 4;
+}
+
+.scatter-trend-line {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2px;
+  stroke-dasharray: 5 4;
+}
+
+.scatter-trend-point {
+  fill: #fff;
+  stroke: var(--ink);
+  stroke-width: 1.5px;
 }
 
 .fingerprint-value {
@@ -942,6 +1021,11 @@ code {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .term-cue dl,
+  .map-term-cue dl {
+    grid-template-columns: 1fr 1fr;
+  }
+
   nav {
     flex-wrap: wrap;
   }
@@ -962,6 +1046,11 @@ code {
 
   .role-value-strip {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .term-cue dl,
+  .map-term-cue dl {
+    grid-template-columns: 1fr;
   }
 
   .stat-list div:nth-child(odd) {

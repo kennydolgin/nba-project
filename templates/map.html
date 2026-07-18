@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>NBA Team Context Explorer</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=compare4">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=feedback1">
 </head>
 <body data-static-base="{{ url_for('static', filename='') }}">
   <header class="topbar">
@@ -75,6 +75,15 @@
       </select>
     </section>
 
+    <section class="term-cue map-term-cue" aria-label="Summary chart term guide">
+      <strong>Chart term guide</strong>
+      <dl>
+        <div><dt>Share of bucket</dt><dd>Percent of player-season rows inside a low-, middle-, or high-winning team bucket.</dd></div>
+        <div><dt>eFG%</dt><dd>Shooting efficiency adjusted for made 3-pointers.</dd></div>
+        <div><dt>Defensive events</dt><dd>Steals + blocks; partial box-score defense only.</dd></div>
+      </dl>
+    </section>
+
     <section class="layout">
       <div class="panel chart-panel">
         <div class="panel-heading">
@@ -110,11 +119,11 @@
 
   <div id="tooltip" role="status" aria-live="polite"></div>
 
-  <script src="{{ url_for('static', filename='vendor/d3.v4.min.js') }}?v=compare4"></script>
-  <script src="{{ url_for('static', filename='vendor/d3-scale-chromatic.v1.min.js') }}?v=compare4"></script>
-  <script src="{{ url_for('static', filename='vendor/topojson.v2.min.js') }}?v=compare4"></script>
-  <script src="{{ url_for('static', filename='js/USCloroplethByState.js') }}?v=compare4"></script>
-  <script src="{{ url_for('static', filename='js/map.js') }}?v=compare4"></script>
-  <script src="{{ url_for('static', filename='js/team_explorer.js') }}?v=team1"></script>
+  <script src="{{ url_for('static', filename='vendor/d3.v4.min.js') }}?v=feedback1"></script>
+  <script src="{{ url_for('static', filename='vendor/d3-scale-chromatic.v1.min.js') }}?v=feedback1"></script>
+  <script src="{{ url_for('static', filename='vendor/topojson.v2.min.js') }}?v=feedback1"></script>
+  <script src="{{ url_for('static', filename='js/USCloroplethByState.js') }}?v=feedback1"></script>
+  <script src="{{ url_for('static', filename='js/map.js') }}?v=feedback1"></script>
+  <script src="{{ url_for('static', filename='js/team_explorer.js') }}?v=feedback1"></script>
 </body>
 </html>

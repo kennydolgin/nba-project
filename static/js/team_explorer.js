@@ -245,9 +245,9 @@ function renderTeamScatter(data, config) {
     .append("circle")
     .attr("cx", function(d) { return x(d.x); })
     .attr("cy", function(d) { return y(d.y); })
-    .attr("r", 3.2)
+    .attr("r", 2.4)
     .attr("fill", function(d) { return color(d[config.color]); })
-    .attr("opacity", 0.42)
+    .attr("opacity", 0.28)
     .on("mousemove", function(d) {
       showTeamTooltip(d3.event, [
         "<strong>" + escapeTeamHtml(teamRowSeasonLabel(d)) + "</strong>",
@@ -259,6 +259,27 @@ function renderTeamScatter(data, config) {
     })
     .on("mouseleave", hideTeamTooltip);
 
+  var trend = buildTeamMedianTrend(clean, 7);
+  if (trend.length > 1) {
+    var trendLine = d3.line()
+      .x(function(d) { return x(d.x); })
+      .y(function(d) { return y(d.y); });
+    g.append("path")
+      .datum(trend)
+      .attr("class", "scatter-trend-line")
+      .attr("d", trendLine);
+    g.selectAll(".scatter-trend-point")
+      .data(trend)
+      .enter()
+      .append("circle")
+      .attr("class", "scatter-trend-point")
+      .attr("cx", function(d) { return x(d.x); })
+      .attr("cy", function(d) { return y(d.y); })
+      .attr("r", 3)
+      .append("title")
+      .text(function(d) { return "Median trend bin: " + d.count + " player-seasons"; });
+  }
+
   var legend = container.append("div").attr("class", "legend");
   groups.slice(0, 8).forEach(function(group) {
     var item = legend.append("span");
@@ -267,7 +288,29 @@ function renderTeamScatter(data, config) {
   });
   container.append("p")
     .attr("class", "chart-footnote")
-    .text("Each dot is one player-season. Color groups provide context; the chart shows association, not causation.");
+    .text("Each dot is one player-season. The dashed line connects median y-values across x-axis bins to reduce overplotting; it shows association, not causation.");
+}
+
+function buildTeamMedianTrend(rows, binCount) {
+  if (!rows.length) return [];
+  var extent = d3.extent(rows, function(d) { return d.x; });
+  var min = extent[0];
+  var max = extent[1];
+  if (!Number.isFinite(min) || !Number.isFinite(max) || min === max) return [];
+  var step = (max - min) / binCount;
+  return d3.range(binCount).map(function(index) {
+    var lower = min + step * index;
+    var upper = index === binCount - 1 ? max : lower + step;
+    var binRows = rows.filter(function(row) {
+      return row.x >= lower && (index === binCount - 1 ? row.x <= upper : row.x < upper);
+    });
+    if (binRows.length < 4) return null;
+    return {
+      x: d3.mean(binRows, function(d) { return d.x; }),
+      y: d3.median(binRows, function(d) { return d.y; }),
+      count: binRows.length
+    };
+  }).filter(Boolean);
 }
 
 function renderTeamExamples(viewName) {
