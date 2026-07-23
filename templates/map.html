@@ -3,127 +3,169 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>NBA Team Context Explorer</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=visual2">
+  <meta name="theme-color" content="#06111e">
+  <title>NBA Team Roster Lab</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=rosterlab1">
 </head>
-<body class="app-shell team-map-page" data-static-base="{{ url_for('static', filename='') }}">
-  <header class="topbar">
-    <div>
-      <p class="eyebrow">Team success geography</p>
-      <h1>NBA Team Context Explorer</h1>
-      <p class="lede">Explore team-win geography and broader player-season role patterns by team success bucket. The Team Map gives geographic context; the main Role Explorer compares player roles in historical team-win context.</p>
+<body class="app-shell team-roster-page" data-static-base="{{ url_for('static', filename='') }}">
+  <header class="topbar roster-topbar">
+    <div class="roster-title-block">
+      <p class="eyebrow">Team-season role analysis</p>
+      <h1>NBA Team Roster Lab</h1>
+      <p class="lede">Strong teams can be built from different roster shapes. Inspect how one team-season distributes scoring load, creation, rebounding, efficiency, defensive-event production, and role breadth.</p>
     </div>
     <nav aria-label="Primary">
       <a href="/">Role explorer</a>
-      <a href="/map" aria-current="page">Team map</a>
+      <a href="/map" aria-current="page">Team rosters</a>
       <a href="/methodology">Methodology</a>
     </nav>
+    <details class="compact-nav">
+      <summary aria-label="Open navigation">☰</summary>
+      <nav aria-label="Compact primary navigation">
+        <a href="/">Role explorer</a>
+        <a href="/map" aria-current="page">Team rosters</a>
+        <a href="/methodology">Methodology</a>
+      </nav>
+    </details>
   </header>
 
-  <main>
-    <section class="control-strip" aria-label="Map controls">
-      <label for="yearSlider">Season</label>
-      <input id="yearSlider" type="range" min="2010" max="2025" value="2025">
-      <strong id="yearSliderLabel">2025</strong>
-    </section>
+  <main id="rosterLab" aria-busy="true">
+    <section class="roster-toolbar" aria-label="Roster lab controls">
+      <div class="season-control">
+        <label for="rosterSeason">Season</label>
+        <select id="rosterSeason"></select>
+      </div>
 
-    <section class="layout map-layout">
-      <div class="panel chart-panel">
-        <div class="panel-heading">
-          <div>
-            <p class="eyebrow">Team success geography</p>
-            <h2>Average team win percentage by state</h2>
+      <details class="compare-menu" id="compareMenu">
+        <summary>Compare team</summary>
+        <div class="compare-menu-body">
+          <label for="compareTeamSelect">Comparison team</label>
+          <select id="compareTeamSelect"></select>
+          <div class="compare-menu-actions">
+            <button id="applyCompare" type="button">Apply</button>
+            <button id="removeCompare" class="button-quiet" type="button">Remove</button>
           </div>
-          <p>Muted states have no NBA team in the selected season.</p>
         </div>
-        <div id="maps" class="map-frame"></div>
-      </div>
+      </details>
 
-      <aside class="panel insight-panel">
-        <p class="eyebrow">Map methodology</p>
-        <h2>Season filter, state-level context</h2>
-        <p>The selected season is joined to US map shapes by state. States with multiple NBA teams show the average team win percentage for that season.</p>
-        <div id="mapTable"></div>
-      </aside>
+      <button id="exportRoster" class="button-quiet" type="button">Export roster CSV</button>
+      <button id="copyRosterLink" class="button-quiet" type="button">Copy link</button>
+      <span id="shareStatus" class="sr-only" role="status" aria-live="polite"></span>
     </section>
 
-    <section class="metrics" aria-label="Project summary metrics">
-      <article>
-        <span id="metricRows">--</span>
-        <p>player-season records</p>
-      </article>
-      <article>
-        <span id="metricTeams">--</span>
-        <p>team seasons with context</p>
-      </article>
-      <article>
-        <span id="metricEfficient">--</span>
-        <p>efficient lower-shot share on strong teams</p>
-      </article>
-      <article>
-        <span id="metricDefense">--</span>
-        <p>top defensive-event player-seasons that were not top scorers</p>
-      </article>
-    </section>
+    <div class="roster-lab-grid">
+      <section class="team-rail-wrap" aria-labelledby="teamRailTitle">
+        <div class="rail-intro">
+          <span id="teamRailTitle">Teams</span>
+          <small>Sorted by win %</small>
+        </div>
+        <div id="teamRail" class="team-rail" role="list" aria-label="Teams sorted by season win percentage"></div>
+      </section>
 
-    <section class="control-strip" aria-label="Visualization controls">
-      <label for="viewSelect">Summary question</label>
-      <select id="viewSelect">
-        <option value="profileMix">How do profile types differ by team success?</option>
-        <option value="efficientLowerShot">Are efficient lower-shot contributors more common on stronger teams?</option>
-        <option value="defenseOverlap">How often do defensive-event leaders also score heavily?</option>
-      </select>
-    </section>
+      <section id="teamSummary" class="roster-panel team-summary" aria-labelledby="teamSummaryTitle">
+        <div class="summary-kicker"><span>Selected team</span></div>
+        <h2 id="teamSummaryTitle">Loading roster…</h2>
+        <p id="teamSeasonLabel" class="summary-season"></p>
+        <dl class="team-summary-stats">
+          <div><dt>Team win %</dt><dd id="summaryWin">—</dd></div>
+          <div><dt>Rotation size</dt><dd id="summarySize">—</dd></div>
+          <div><dt>Avg role breadth</dt><dd id="summaryBreadth">—</dd></div>
+        </dl>
+        <div class="roster-context">
+          <h3>Roster context</h3>
+          <p id="rosterInterpretation">Loading descriptive context…</p>
+        </div>
+        <div id="compareSummary" class="compare-summary" hidden></div>
+        <p class="roster-caveat"><strong>Caveat.</strong> The rotation is a minutes-based player-season proxy, not an official depth chart. Results are descriptive roster context, not causal player impact. Steals + blocks do not measure complete defense. Listed statistics do not capture every lineup, injury, transaction, or tactical factor.</p>
+      </section>
 
-    <section class="term-cue map-term-cue" aria-label="Summary chart term guide">
-      <strong>Chart term guide</strong>
-      <dl>
-        <div><dt>Share of bucket</dt><dd>Percent of player-season rows inside a low-, middle-, or high-winning team bucket.</dd></div>
-        <div><dt>eFG%</dt><dd>Shooting efficiency adjusted for made 3-pointers.</dd></div>
-        <div><dt>Defensive events</dt><dd>Steals + blocks; partial box-score defense only.</dd></div>
-      </dl>
-    </section>
-
-    <section class="layout">
-      <div class="panel chart-panel">
-        <div class="panel-heading">
+      <section id="rosterMapPanel" class="roster-panel roster-map-panel analysis-panel" data-analysis="map" aria-labelledby="rosterMapTitle">
+        <div class="roster-panel-heading">
           <div>
-            <p class="eyebrow">Summary view</p>
-            <h2 id="barTitle">Profile mix by team success</h2>
+            <p class="section-label">Roster role map</p>
+            <h2 id="rosterMapTitle">Responsibility across the rotation</h2>
           </div>
-          <p id="barNote">Shares are computed within each team-success bucket.</p>
+          <label class="rotation-toggle" for="rotationToggle">
+            <span>Rotation only</span>
+            <input id="rotationToggle" type="checkbox" checked>
+          </label>
         </div>
-        <div id="barChart" class="chart"></div>
-      </div>
+        <p class="chart-intro">Horizontal position is scoring load; vertical position is non-scoring contribution. Bubble size is minutes per game. Rotation only shows up to the 10 highest-minute player rows.</p>
+        <div id="roleFilters" class="role-filters" aria-label="Filter players by role profile"></div>
+        <div id="rosterRoleMap" class="roster-role-map" aria-describedby="rosterMapDescription"></div>
+        <p id="rosterMapDescription" class="sr-only">An interactive scatterplot of the selected team-season. Use the role filters, player table, or previous and next controls to inspect players without relying on precise pointer selection.</p>
+        <div id="roleLegend" class="role-legend" aria-label="Role profile legend"></div>
+      </section>
 
-      <aside class="panel insight-panel">
-        <p class="eyebrow">Interpretation guardrail</p>
-        <h2>Association, not causation</h2>
-        <p>The charts compare player-season role patterns with team context. They do not prove that any single role caused a team to win.</p>
-        <p>Defensive events mean steals + blocks; useful box-score events, but not a complete measure of defense.</p>
-        <div id="examples"></div>
-      </aside>
-    </section>
-
-    <section class="panel">
-      <div class="panel-heading">
-        <div>
-          <p class="eyebrow">Player-season evidence</p>
-          <h2 id="scatterTitle">Scoring volume versus team win percentage</h2>
+      <section id="playerTray" class="roster-panel player-tray" aria-labelledby="playerTrayTitle">
+        <div class="player-tray-primary">
+          <span id="selectedPlayerSwatch" class="player-swatch" aria-hidden="true"></span>
+          <div>
+            <p class="section-label">Selected player</p>
+            <h2 id="playerTrayTitle">—</h2>
+            <p id="playerTrayMeta">—</p>
+          </div>
+          <div class="player-stepper" aria-label="Move through roster players">
+            <button id="previousPlayer" type="button" aria-label="Previous player">‹</button>
+            <span id="playerPosition">—</span>
+            <button id="nextPlayer" type="button" aria-label="Next player">›</button>
+          </div>
         </div>
-        <p>Each point is one player-season. Hover points to inspect player, year, team, and exact values. Read the distribution, not only the famous-player examples.</p>
-      </div>
-      <div id="scatterPlot" class="chart tall"></div>
-    </section>
+        <div id="playerMetricStrip" class="player-metric-strip"></div>
+        <div id="playerRoleLabels" class="player-role-labels"></div>
+      </section>
+
+      <nav id="analysisTabs" class="roster-analysis-tabs" aria-label="Roster analysis views" role="tablist">
+        <button type="button" role="tab" aria-selected="true" aria-controls="rosterMapPanel" data-tab="map">Roster map</button>
+        <button type="button" role="tab" aria-selected="false" aria-controls="coveragePanel" data-tab="coverage">Coverage</button>
+        <button type="button" role="tab" aria-selected="false" aria-controls="benchmarkPanel" data-tab="benchmark">Benchmark</button>
+      </nav>
+
+      <section id="coveragePanel" class="roster-panel coverage-panel analysis-panel" data-analysis="coverage" aria-labelledby="coverageTitle">
+        <div class="roster-panel-heading">
+          <div>
+            <p class="section-label">Roster coverage matrix</p>
+            <h2 id="coverageTitle">Season-league percentiles with raw values</h2>
+          </div>
+          <label for="coverageSort">Sort rows
+            <select id="coverageSort">
+              <option value="minutes_per_game">Minutes</option>
+              <option value="points_per_36">Scoring</option>
+              <option value="assists_per_36">Creation</option>
+              <option value="rebounds_per_36">Boards</option>
+              <option value="stocks_per_36">Defensive events</option>
+              <option value="efg_pct">Efficiency</option>
+              <option value="role_category_count">Role breadth</option>
+            </select>
+          </label>
+        </div>
+        <div id="coverageTable" class="coverage-table-wrap"></div>
+        <p class="chart-note">Bars show selected-season league percentile; the center tick marks the league median. Text keeps each underlying raw value visible.</p>
+      </section>
+
+      <section id="benchmarkPanel" class="roster-panel benchmark-panel analysis-panel" data-analysis="benchmark" aria-labelledby="benchmarkTitle">
+        <div class="roster-panel-heading">
+          <div>
+            <p class="section-label">Team vs. league benchmark</p>
+            <h2 id="benchmarkTitle">Minutes-weighted rotation shape</h2>
+          </div>
+        </div>
+        <div id="benchmarkLegend" class="benchmark-legend"></div>
+        <div id="teamBenchmark" class="team-benchmark"></div>
+        <p class="chart-note">Metrics are normalized to 0–100 percentiles among selected-season team rotations. Top-five benchmark means the five highest-win teams; overlap is expected and is not causal evidence.</p>
+      </section>
+    </div>
+
+    <details class="geography-locator" id="geographyLocator">
+      <summary><span>Geographic locator</span><small>Secondary context for the selected team</small></summary>
+      <div id="teamLocation" class="team-location"></div>
+    </details>
+
+    <div id="rosterLoadError" class="load-error roster-load-error" role="alert" hidden></div>
   </main>
 
   <div id="tooltip" role="status" aria-live="polite"></div>
-
-  <script src="{{ url_for('static', filename='vendor/d3.v4.min.js') }}?v=feedback1"></script>
-  <script src="{{ url_for('static', filename='vendor/d3-scale-chromatic.v1.min.js') }}?v=feedback1"></script>
-  <script src="{{ url_for('static', filename='vendor/topojson.v2.min.js') }}?v=feedback1"></script>
-  <script src="{{ url_for('static', filename='js/USCloroplethByState.js') }}?v=visual2"></script>
-  <script src="{{ url_for('static', filename='js/map.js') }}?v=visual2"></script>
-  <script src="{{ url_for('static', filename='js/team_explorer.js') }}?v=visual2"></script>
+  <script src="{{ url_for('static', filename='vendor/d3.v7.min.js') }}?v=rosterlab1"></script>
+  <script src="{{ url_for('static', filename='js/team_explorer.js') }}?v=rosterlab1"></script>
 </body>
 </html>

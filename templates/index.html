@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Beyond Points Per Game</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=visual2">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=rosterlab1">
 </head>
 <body class="app-shell role-explorer-page" data-static-base="{{ url_for('static', filename='') }}">
   <header class="topbar">
@@ -15,7 +15,7 @@
     </div>
     <nav aria-label="Primary">
       <a href="/" aria-current="page">Role explorer</a>
-      <a href="/map">Team map</a>
+      <a href="/map">Team rosters</a>
       <a href="/methodology">Methodology</a>
     </nav>
   </header>
@@ -172,7 +172,7 @@
 
   <div id="tooltip" role="status" aria-live="polite"></div>
 
-  <script src="{{ url_for('static', filename='vendor/d3.v7.min.js') }}?v=feedback1"></script>
-  <script src="{{ url_for('static', filename='js/app.js') }}?v=visual2"></script>
+  <script src="{{ url_for('static', filename='vendor/d3.v7.min.js') }}?v=rosterlab1"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}?v=rosterlab1"></script>
 </body>
 </html>

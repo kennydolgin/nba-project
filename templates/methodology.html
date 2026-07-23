@@ -4,18 +4,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Methodology | Beyond Points Per Game</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=visual2">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=rosterlab1">
 </head>
 <body class="app-shell methodology-shell" data-static-base="{{ url_for('static', filename='') }}">
   <header class="topbar">
     <div>
       <p class="eyebrow">NBA player role analytics</p>
       <h1>Methodology</h1>
-      <p class="lede">Definitions for every metric, label, chart, and comparison concept used in the role explorer and team map.</p>
+      <p class="lede">Definitions for every metric, label, chart, and comparison concept used in the role explorer and team roster lab.</p>
     </div>
     <nav aria-label="Primary">
       <a href="/">Role explorer</a>
-      <a href="/map">Team map</a>
+      <a href="/map">Team rosters</a>
       <a href="/methodology" aria-current="page">Methodology</a>
     </nav>
   </header>
@@ -230,20 +230,20 @@
 
     <section class="layout methodology-layout">
       <article class="panel methodology-card">
-        <p class="eyebrow">Summary charts</p>
-        <h2>Summary questions, bucket shares, and scatter plots</h2>
-        <p>On the Team Map page, the <strong>summary question</strong> dropdown changes the bar chart, examples, and scatter plot below the map. The three choices are profile mix by team success, efficient lower-shot contributors, and defensive-event leaders.</p>
-        <p>The stacked bars calculate shares within each team-success bucket. This prevents high-volume buckets from dominating the display and makes profile mix easier to compare across low-, middle-, and high-winning teams.</p>
-        <p>The scatter plots show direct bivariate evidence: scoring volume versus team win percentage, shot volume versus effective field-goal percentage, and scoring versus defensive events (steals + blocks). Hovering a point shows the player, season, team, selected x/y values, and label.</p>
-        <p><strong>Concrete examples</strong> are representative rows chosen from the active summary question. They are filtered to players with at least 15 minutes per game and selected to avoid repeating the same team or player when possible.</p>
+        <p class="eyebrow">Roster construction</p>
+        <h2>Role map and rotation proxy</h2>
+        <p>The Team Roster Lab filters <code>player_seasons.csv</code> to one team-season. <strong>Rotation only</strong> means up to the 10 player rows with the highest minutes per game. It is a transparent minutes-based proxy, not an official depth chart or transaction-complete roster.</p>
+        <p>The roster Role Map reuses the Role Explorer coordinate logic. Horizontal position averages the selected-season percentiles for points per 36 and field-goal attempts per game. Vertical position averages selected-season percentiles for assists, rebounds, defensive events, eFG%, and role breadth.</p>
+        <p>Bubble area reflects minutes per game. Profile colors summarize which statistical responsibility is most prominent; they are descriptive labels rather than grades. Selection is available through bubbles, keyboard focus, previous/next controls, and matrix rows.</p>
+        <p>The coverage matrix shows selected-season league percentiles while retaining raw values. Its center marker is the season-league median.</p>
       </article>
 
       <article class="panel methodology-card">
-        <p class="eyebrow">Map calculation</p>
-        <h2>Team map and state-level win percentage</h2>
-        <p>The <strong>NBA Team Context Map</strong> uses the season slider to filter team-season rows. Team abbreviations are joined to US states. For states with multiple NBA teams in a season, the displayed value is the average win percentage across those teams.</p>
-        <p>White states have no NBA team in the selected season. The map tooltip shows state, teams, and average win pct. The side table lists the eight highest state averages for the selected season.</p>
-        <p>The map gives geographic context for team win percentage, while the main analytical story remains the player-role comparison.</p>
+        <p class="eyebrow">Team benchmark</p>
+        <h2>Minutes-weighted roster shape</h2>
+        <p>For every selected-season team, the benchmark takes a minutes-weighted average across its 10 highest-minute player rows for scoring, creation, rebounding, defensive events, efficiency, and role breadth.</p>
+        <p>Each team metric is converted to a 0–100 percentile among that season's teams. The selected team is compared with the league midpoint, the average percentile of the five highest-win teams, and an optional second team.</p>
+        <p>The benchmark describes roster shape and overlap. It does not claim that a shape caused winning. The collapsed geographic locator supplies orientation only and is not an analytical input.</p>
       </article>
     </section>
 
@@ -268,8 +268,8 @@
               <td>The main interactive comparison page for selecting two player-seasons and reading their profile, similarity, and win-context evidence.</td>
             </tr>
             <tr>
-              <td><strong>Team map</strong></td>
-              <td>The state-level geography view of average NBA team win percentage by season, plus the broader team-success summary cards, summary question chart, examples, and player-season evidence scatterplot.</td>
+              <td><strong>Team rosters</strong></td>
+              <td>The team-season roster lab for inspecting scoring load, non-scoring contribution, role coverage, and minutes-weighted team-shape benchmarks.</td>
             </tr>
             <tr>
               <td><strong>Prototype</strong></td>
