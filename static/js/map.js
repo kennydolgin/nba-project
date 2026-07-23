@@ -60,7 +60,7 @@ function drawMap(data) {
 
   chart.colorScale(d3.scaleThreshold()
     .domain([.25, .35, .45, .50, .55, .60, .65, .70])
-    .range(d3.schemeBlues[9])
+    .range(["#0b1928", "#11283b", "#173a50", "#1d5065", "#246b79", "#2f8790", "#43a3a0", "#5cbd9f", "#83d4ad"])
   );
 
   d3.select("#maps")

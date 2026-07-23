@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>NBA Team Context Explorer</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=feedback1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=visual2">
 </head>
-<body data-static-base="{{ url_for('static', filename='') }}">
+<body class="app-shell team-map-page" data-static-base="{{ url_for('static', filename='') }}">
   <header class="topbar">
     <div>
       <p class="eyebrow">Team success geography</p>
@@ -15,7 +15,7 @@
     </div>
     <nav aria-label="Primary">
       <a href="/">Role explorer</a>
-      <a href="/map">Team map</a>
+      <a href="/map" aria-current="page">Team map</a>
       <a href="/methodology">Methodology</a>
     </nav>
   </header>
@@ -34,7 +34,7 @@
             <p class="eyebrow">Team success geography</p>
             <h2>Average team win percentage by state</h2>
           </div>
-          <p>White states have no NBA team in the selected season.</p>
+          <p>Muted states have no NBA team in the selected season.</p>
         </div>
         <div id="maps" class="map-frame"></div>
       </div>
@@ -122,8 +122,8 @@
   <script src="{{ url_for('static', filename='vendor/d3.v4.min.js') }}?v=feedback1"></script>
   <script src="{{ url_for('static', filename='vendor/d3-scale-chromatic.v1.min.js') }}?v=feedback1"></script>
   <script src="{{ url_for('static', filename='vendor/topojson.v2.min.js') }}?v=feedback1"></script>
-  <script src="{{ url_for('static', filename='js/USCloroplethByState.js') }}?v=feedback1"></script>
-  <script src="{{ url_for('static', filename='js/map.js') }}?v=feedback1"></script>
-  <script src="{{ url_for('static', filename='js/team_explorer.js') }}?v=feedback1"></script>
+  <script src="{{ url_for('static', filename='js/USCloroplethByState.js') }}?v=visual2"></script>
+  <script src="{{ url_for('static', filename='js/map.js') }}?v=visual2"></script>
+  <script src="{{ url_for('static', filename='js/team_explorer.js') }}?v=visual2"></script>
 </body>
 </html>

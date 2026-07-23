@@ -1,19 +1,19 @@
 const successOrder = ["Low-winning teams", "Middle-winning teams", "High-winning teams"];
 const colors = {
-  "Balanced profile": "#2f6f9f",
-  "Mixed profile": "#67a6b8",
-  "Narrow profile": "#c65f1a",
-  "Efficient lower-shot player": "#3b7f64",
-  "Other core player": "#b9c3d1",
-  "Top steals + blocks, not top scorer": "#3b7f64",
-  "Top steals + blocks + top scorer": "#c65f1a"
+  "Balanced profile": "#5aa6b8",
+  "Mixed profile": "#7b8da3",
+  "Narrow profile": "#b86b3d",
+  "Efficient lower-shot player": "#72c77d",
+  "Other core player": "#70839a",
+  "Top steals + blocks, not top scorer": "#72c77d",
+  "Top steals + blocks + top scorer": "#ff9f0a"
 };
-const compareColors = { A: "#2f6f9f", B: "#c65f1a" };
+const compareColors = { A: "#28d7f7", B: "#ff9f0a" };
 
 const viewConfig = {
   profileMix: {
     title: "Role profile mix by team success",
-    note: "Broader player-season statistical profiles are somewhat more common on stronger teams, but this pattern is descriptive.",
+    note: "All three profile types appear across team-success buckets. Broader player-season profiles are somewhat more common on stronger teams, but the distributions overlap substantially.",
     dataKey: "profileMix",
     scatterKey: "scoringScatter",
     scatterTitle: "Player-season scoring volume versus team win percentage",
@@ -25,7 +25,7 @@ const viewConfig = {
   },
   efficientLowerShot: {
     title: "Efficient lower-shot contributors by team success",
-    note: "High-winning teams have the largest share of efficient lower-shot player-seasons in this dataset.",
+    note: "Efficient lower-shot player-seasons appear across team-success buckets; high-winning teams have the largest share in this dataset, but the distributions overlap.",
     dataKey: "efficientLowerShot",
     scatterKey: "efficiencyScatter",
     scatterTitle: "Player-season shot volume versus shooting efficiency",
@@ -37,7 +37,7 @@ const viewConfig = {
   },
   defenseOverlap: {
     title: "Defensive-event leaders who are not top scorers",
-    note: "Most top defensive-event player-seasons are not top-quartile scoring seasons. Steals + blocks are useful box-score events, not complete defense.",
+    note: "Both defensive-event categories appear across team-success buckets. Most top defensive-event player-seasons are not top-quartile scoring seasons; steals + blocks are useful box-score events, not complete defense.",
     dataKey: "defenseOverlap",
     scatterKey: "defenseScatter",
     scatterTitle: "Player-season scoring versus defensive events per 36",
@@ -77,9 +77,9 @@ const winningBandMetrics = [
   { key: "role_category_count", label: "Role dimensions", unit: "roles", format: d3.format(".0f") }
 ];
 const winBucketColors = {
-  "Low-winning teams": "#8f9bad",
-  "Middle-winning teams": "#2f6f9f",
-  "High-winning teams": "#3b7f64"
+  "Low-winning teams": "#70839a",
+  "Middle-winning teams": "#4b8aa6",
+  "High-winning teams": "#72c77d"
 };
 const similarityKeys = [
   "points_per_36",
@@ -287,14 +287,14 @@ function renderComparisonInsight(selected) {
     : `${rowSeasonLabel(diff > 0 ? a.row : b.row)} has the higher comparable-season median team-win context.`;
 
   container.append("p")
-    .html(`<strong>${escapeHtml(lead)}</strong> Comparable player-seasons had median team win percentages of ${fmtPct(a.summary.medianWin)} for ${escapeHtml(rowSeasonLabel(a.row))} and ${fmtPct(b.summary.medianWin)} for ${escapeHtml(rowSeasonLabel(b.row))}. Treat this as descriptive evidence, not a causal player ranking.`);
+    .html(`<strong>${escapeHtml(lead)}</strong> Comparable player-seasons had median team win percentages of ${fmtPct(a.summary.medianWin)} for ${escapeHtml(rowSeasonLabel(a.row))} and ${fmtPct(b.summary.medianWin)} for ${escapeHtml(rowSeasonLabel(b.row))}. The two comparison groups can overlap substantially, so the median gap does not mean one profile consistently appears on stronger teams. Treat this as descriptive evidence, not a causal player ranking.`);
 }
 
 function renderPlayerCards(selected) {
   const cards = d3.select("#playerCards");
   cards.selectAll("*").remove();
 
-  cards.selectAll("article")
+  const cardSelection = cards.selectAll("article")
     .data(selected, d => d.side)
     .join("article")
     .attr("class", d => `player-card side-${d.side.toLowerCase()}`)
@@ -322,8 +322,57 @@ function renderPlayerCards(selected) {
           ${roleBadge("Shot role", shotRoleLabel(row.efficient_lower_shot_label))}
           ${roleBadge("Event role", eventRoleLabel(row.defensive_event_profile))}
         </div>
+        <div class="role-example-panel" aria-live="polite">
+          <p>Select a role label to see concrete player-season examples and supporting metrics.</p>
+        </div>
       `;
     });
+
+  cardSelection.each(function(d) {
+    const card = d3.select(this);
+    card.selectAll("button.role-badge").on("click", function() {
+      const button = d3.select(this);
+      card.selectAll("button.role-badge").attr("aria-expanded", "false").classed("is-active", false);
+      button.attr("aria-expanded", "true").classed("is-active", true);
+      renderRoleExamples(card.select(".role-example-panel"), d.row, this.dataset.roleCategory, this.dataset.roleValue);
+    });
+  });
+}
+
+function renderRoleExamples(panel, row, category, value) {
+  const examples = roleExampleCandidates(row, category, value, 3);
+  panel.selectAll("*").remove();
+  panel.append("strong").text(`${category}: ${value}`);
+  panel.append("p").text(roleDefinition(category, value));
+
+  if (!examples.length) {
+    panel.append("p").text("No other reviewed player-season with this label has a complete comparison profile.");
+    return;
+  }
+
+  const list = panel.append("ul");
+  list.selectAll("li")
+    .data(examples)
+    .join("li")
+    .html(example => `<strong>${escapeHtml(rowSeasonLabel(example))}</strong> - ${fmtNum(example.role_category_count)} role dimensions, ${d3.format(".1f")(example.points_per_36)} pts/36, ${fmtPct(example.efg_pct)} eFG%, ${d3.format(".2f")(example.stocks_per_36)} defensive events/36.`);
+  panel.append("p").attr("class", "card-note").text("Examples share the selected label and have nearby statistical profiles. They do not imply equal quality or causal impact.");
+}
+
+function roleExampleCandidates(row, category, value, limit) {
+  if (!hasSimilarityVector(row)) return [];
+  return playerRows
+    .filter(candidate => candidate.key !== row.key && candidate.minutes_per_game >= 15 && roleValueForCategory(candidate, category) === value && hasSimilarityVector(candidate))
+    .map(candidate => ({ ...candidate, exampleDistance: similarityDistance(row, candidate) }))
+    .filter(candidate => Number.isFinite(candidate.exampleDistance))
+    .sort((a, b) => d3.ascending(a.exampleDistance, b.exampleDistance) || d3.descending(a.minutes_per_game, b.minutes_per_game))
+    .slice(0, limit);
+}
+
+function roleValueForCategory(row, category) {
+  if (category === "Profile") return displayRoleLabel(row.profile_group || "Unlabeled");
+  if (category === "Shot role") return displayRoleLabel(shotRoleLabel(row.efficient_lower_shot_label));
+  if (category === "Event role") return displayRoleLabel(eventRoleLabel(row.defensive_event_profile));
+  return "Unlabeled";
 }
 
 function renderRoleUniverse(selected) {
@@ -393,7 +442,7 @@ function renderRoleUniverse(selected) {
     .attr("cx", d => x(d.universe.x))
     .attr("cy", d => y(d.universe.y))
     .attr("r", d => r(d.minutes_per_game))
-    .attr("fill", d => winBucketColors[d.team_success_bucket] || "#8f9bad")
+    .attr("fill", d => winBucketColors[d.team_success_bucket] || "#70839a")
     .attr("opacity", d => d.team_success_bucket === "High-winning teams" ? .46 : .26)
     .on("mousemove", (event, d) => showTooltip(event, [
       `<strong>${rowSeasonLabel(d)}</strong>`,
@@ -425,8 +474,8 @@ function renderRoleUniverse(selected) {
     .attr("cx", d => x(d.universe.x))
     .attr("cy", d => y(d.universe.y))
     .attr("r", 5)
-    .attr("fill", "#fff")
-    .attr("stroke", "#0b1f3a")
+    .attr("fill", d => compareColors[d.side])
+    .attr("stroke", "#071421")
     .attr("stroke-width", 1.5);
 
   selectedLayer.selectAll("text")
@@ -851,7 +900,7 @@ function renderFingerprintChart(selected) {
     .attr("y", d => y(d.metric.key) + side(d.side) + side.bandwidth() / 2)
     .attr("dy", ".35em")
     .attr("text-anchor", d => d.percentile > 82 ? "end" : "start")
-    .attr("fill", d => d.percentile > 82 ? "#fff" : "#5a6678")
+    .attr("fill", d => d.percentile > 82 ? "#fffdf5" : "#91a3b6")
     .text(d => `${d.side} ${ordinal(Math.round(d.percentile))}`);
 
   g.append("text")
@@ -1032,7 +1081,7 @@ function rowSeasonLabel(row) {
 
 function roleBadge(category, value) {
   const label = displayRoleLabel(value);
-  return `<span class="role-badge" title="${escapeHtml(roleDefinition(category, label))}"><b>${escapeHtml(category)}</b>${escapeHtml(label)}</span>`;
+  return `<button type="button" class="role-badge" data-role-category="${escapeHtml(category)}" data-role-value="${escapeHtml(label)}" aria-expanded="false" title="${escapeHtml(roleDefinition(category, label))}"><b>${escapeHtml(category)}</b>${escapeHtml(label)}</button>`;
 }
 
 function shotRoleLabel(value) {
@@ -1134,7 +1183,7 @@ function renderBarChart(data) {
   g.selectAll("g.layer")
     .data(stacked)
     .join("g")
-    .attr("fill", d => colors[d.key] || "#789")
+    .attr("fill", d => colors[d.key] || "#70839a")
     .selectAll("rect")
     .data(d => d.map(item => ({ ...item, key: d.key })))
     .join("rect")
@@ -1152,7 +1201,7 @@ function renderBarChart(data) {
   const legend = container.append("div").attr("class", "legend");
   profiles.forEach(profile => {
     const item = legend.append("span");
-    item.append("i").attr("class", "swatch").style("background", colors[profile] || "#789");
+    item.append("i").attr("class", "swatch").style("background", colors[profile] || "#70839a");
     item.append("b").text(displayRoleLabel(profile));
   });
 }
@@ -1187,7 +1236,7 @@ function renderScatter(data, config) {
   const x = d3.scaleLinear().domain(xDomain).nice().range([0, innerWidth]);
   const y = d3.scaleLinear().domain(yDomain).nice().range([innerHeight, 0]);
   const groups = Array.from(new Set(clean.map(d => d[config.color])));
-  const color = d3.scaleOrdinal().domain(groups).range(["#2f6f9f", "#c65f1a", "#3b7f64", "#8a6fb0", "#8f9bad"]);
+  const color = d3.scaleOrdinal().domain(groups).range(["#5aa6b8", "#ff9f0a", "#72c77d", "#9e7ad1", "#70839a"]);
 
   g.append("g")
     .attr("class", "axis")
@@ -1259,7 +1308,7 @@ function renderScatter(data, config) {
     .attr("cx", d => x(d.x))
     .attr("cy", d => y(d.y))
     .attr("r", 8)
-    .attr("fill", "#fff")
+    .attr("fill", d => compareColors[d.side])
     .attr("stroke", d => compareColors[d.side])
     .attr("stroke-width", 3)
     .on("mousemove", (event, d) => showTooltip(event, [

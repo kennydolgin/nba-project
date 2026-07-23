@@ -85,7 +85,7 @@ function USCloroplethByState() {
         .append("path")
       .merge(states)
         .attr("d", path)
-        .style("fill", "white")
+        .style("fill", "#0a1724")
         .on("mouseenter", function () {
           d3.select("#mapTooltip").remove();
           d3.select("body")

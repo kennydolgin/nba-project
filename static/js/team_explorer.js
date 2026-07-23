@@ -1,19 +1,19 @@
 /* global d3 */
 var teamSuccessOrder = ["Low-winning teams", "Middle-winning teams", "High-winning teams"];
 var teamExplorerColors = {
-  "Balanced profile": "#2f6f9f",
-  "Mixed profile": "#67a6b8",
-  "Narrow profile": "#c65f1a",
-  "Efficient lower-shot player": "#3b7f64",
-  "Other core player": "#b9c3d1",
-  "Top steals + blocks, not top scorer": "#3b7f64",
-  "Top steals + blocks + top scorer": "#c65f1a",
-  "Top scorer, not top steals + blocks": "#8f9bad"
+  "Balanced profile": "#5aa6b8",
+  "Mixed profile": "#7b8da3",
+  "Narrow profile": "#b86b3d",
+  "Efficient lower-shot player": "#72c77d",
+  "Other core player": "#70839a",
+  "Top steals + blocks, not top scorer": "#72c77d",
+  "Top steals + blocks + top scorer": "#ff9f0a",
+  "Top scorer, not top steals + blocks": "#9e7ad1"
 };
 var teamViewConfig = {
   profileMix: {
     title: "Role profile mix by team success",
-    note: "Broader player-season statistical profiles are somewhat more common on stronger teams, but this pattern is descriptive.",
+    note: "All three profile types appear across team-success buckets. Broader player-season profiles are somewhat more common on stronger teams, but the distributions overlap substantially.",
     dataKey: "profileMix",
     scatterKey: "scoringScatter",
     scatterTitle: "Player-season scoring volume versus team win percentage",
@@ -25,7 +25,7 @@ var teamViewConfig = {
   },
   efficientLowerShot: {
     title: "Efficient lower-shot contributors by team success",
-    note: "High-winning teams have the largest share of efficient lower-shot player-seasons in this dataset.",
+    note: "Efficient lower-shot player-seasons appear across team-success buckets; high-winning teams have the largest share in this dataset, but the distributions overlap.",
     dataKey: "efficientLowerShot",
     scatterKey: "efficiencyScatter",
     scatterTitle: "Player-season shot volume versus shooting efficiency",
@@ -37,7 +37,7 @@ var teamViewConfig = {
   },
   defenseOverlap: {
     title: "Defensive-event leaders who are not top scorers",
-    note: "Most top defensive-event player-seasons are not top-quartile scoring seasons. Steals + blocks are useful box-score events, not complete defense.",
+    note: "Both defensive-event categories appear across team-success buckets. Most top defensive-event player-seasons are not top-quartile scoring seasons; steals + blocks are useful box-score events, not complete defense.",
     dataKey: "defenseOverlap",
     scatterKey: "defenseScatter",
     scatterTitle: "Player-season scoring versus defensive events per 36",
@@ -157,7 +157,7 @@ function renderTeamBarChart(data) {
     .enter()
     .append("g")
     .attr("class", "layer")
-    .attr("fill", function(d) { return teamExplorerColors[d.key] || "#789"; });
+    .attr("fill", function(d) { return teamExplorerColors[d.key] || "#70839a"; });
 
   layers.selectAll("rect")
     .data(function(d) {
@@ -184,7 +184,7 @@ function renderTeamBarChart(data) {
   var legend = container.append("div").attr("class", "legend");
   profiles.forEach(function(profile) {
     var item = legend.append("span");
-    item.append("i").attr("class", "swatch").style("background", teamExplorerColors[profile] || "#789");
+    item.append("i").attr("class", "swatch").style("background", teamExplorerColors[profile] || "#70839a");
     item.append("b").text(displayTeamRoleLabel(profile));
   });
 }
@@ -212,7 +212,7 @@ function renderTeamScatter(data, config) {
   var x = d3.scaleLinear().domain(d3.extent(clean, function(d) { return d.x; })).nice().range([0, innerWidth]);
   var y = d3.scaleLinear().domain(d3.extent(clean, function(d) { return d.y; })).nice().range([innerHeight, 0]);
   var groups = uniqueValues(clean.map(function(d) { return d[config.color]; }));
-  var color = d3.scaleOrdinal().domain(groups).range(["#2f6f9f", "#c65f1a", "#3b7f64", "#8a6fb0", "#8f9bad"]);
+  var color = d3.scaleOrdinal().domain(groups).range(["#5aa6b8", "#ff9f0a", "#72c77d", "#9e7ad1", "#70839a"]);
 
   g.append("g")
     .attr("class", "axis")

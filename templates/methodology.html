@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Methodology | Beyond Points Per Game</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=method2">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=visual2">
 </head>
-<body data-static-base="{{ url_for('static', filename='') }}">
+<body class="app-shell methodology-shell" data-static-base="{{ url_for('static', filename='') }}">
   <header class="topbar">
     <div>
       <p class="eyebrow">NBA player role analytics</p>
@@ -16,7 +16,7 @@
     <nav aria-label="Primary">
       <a href="/">Role explorer</a>
       <a href="/map">Team map</a>
-      <a href="/methodology">Methodology</a>
+      <a href="/methodology" aria-current="page">Methodology</a>
     </nav>
   </header>
 
@@ -138,7 +138,7 @@
       <article class="panel methodology-card">
         <p class="eyebrow">Role labels</p>
         <h2>Profile groups and examples</h2>
-        <p><strong>Role labels</strong> are the small tags on each player card. They come from three fields: <code>profile_group</code>, <code>efficient_lower_shot_label</code>, and <code>defensive_event_profile</code>.</p>
+        <p><strong>Role labels</strong> are the selectable tags on each player card. Selecting a tag shows up to three nearby statistical profiles with the same label and supporting metrics. These examples explain the label; they are not rankings. The labels come from three fields: <code>profile_group</code>, <code>efficient_lower_shot_label</code>, and <code>defensive_event_profile</code>.</p>
         <p><code>profile_group</code> uses <code>role_category_count</code>: 0-1 dimensions is <strong>Narrow profile</strong>, 2-3 is <strong>Mixed profile</strong>, and 4-6 is <strong>Balanced profile</strong>.</p>
         <p><code>efficient_lower_shot_label</code> is <strong>Efficient lower-shot player</strong> when a player-season is at or above median eFG% and below median FGA/game. On the player cards, rows outside that condition appear as <strong>Standard shot profile</strong>.</p>
         <p><code>defensive_event_profile</code> compares top-quartile scoring with top-quartile defensive events (steals + blocks). Labels include <strong>Top defensive events + top scorer</strong>, <strong>Top defensive events, not top scorer</strong>, <strong>Top scorer, not top defensive events</strong>, and, on the player cards, <strong>Standard defensive-event profile</strong> for rows outside those top-quartile categories.</p>

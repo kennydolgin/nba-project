@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Beyond Points Per Game</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=feedback1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v=visual2">
 </head>
-<body data-static-base="{{ url_for('static', filename='') }}">
+<body class="app-shell role-explorer-page" data-static-base="{{ url_for('static', filename='') }}">
   <header class="topbar">
     <div>
       <p class="eyebrow">NBA player role analytics</p>
@@ -14,7 +14,7 @@
       <p class="lede">Explore NBA player roles through scoring, efficiency, defensive-event production, and team context.</p>
     </div>
     <nav aria-label="Primary">
-      <a href="/">Role explorer</a>
+      <a href="/" aria-current="page">Role explorer</a>
       <a href="/map">Team map</a>
       <a href="/methodology">Methodology</a>
     </nav>
@@ -31,24 +31,24 @@
           <p>Select two player-seasons, then compare role shape, statistical neighbors, and team context. Results are descriptive, not causal player rankings.</p>
         </div>
 
-        <aside class="reading-cue" aria-label="How to read this page">
-          <strong>How to read this page</strong>
+        <details class="reading-cue">
+          <summary>How to read this page</summary>
           <ol>
             <li>Choose two players and seasons.</li>
             <li>Compare cards and fingerprint bars.</li>
             <li>Use similar seasons and closest matches for historical context.</li>
           </ol>
-        </aside>
+        </details>
 
-        <aside class="term-cue" aria-label="Quick term guide">
-          <strong>Quick term guide</strong>
+        <details class="term-cue">
+          <summary>Quick term guide</summary>
           <dl>
             <div><dt>Player-season</dt><dd>One player on one team in one NBA season.</dd></div>
             <div><dt>Comparable-season median</dt><dd>Median team win percentage among the nearest 40 similar statistical profiles.</dd></div>
             <div><dt>Role breadth</dt><dd>Count of strong role dimensions in that season.</dd></div>
             <div><dt>Defensive events</dt><dd>Steals + blocks; useful box-score events, not all defense.</dd></div>
           </dl>
-        </aside>
+        </details>
 
         <div class="compare-controls" aria-label="Player comparison controls">
           <div class="compare-control-group">
@@ -66,26 +66,37 @@
           </div>
         </div>
         <datalist id="playerOptions"></datalist>
-        <p class="helper-text">A player-season is one player on one team in one NBA season. Role labels describe that season's statistical profile, not overall player quality or permanent identity.</p>
+        <p class="helper-text">A player-season is one player on one team in one NBA season. Role labels describe that season's statistical profile, not overall player quality or permanent identity. Select a role label on either player card to see nearby same-label examples.</p>
       </div>
 
       <div id="comparisonInsight" class="comparison-insight"></div>
-      <div id="playerCards" class="player-card-grid"></div>
 
-      <section class="panel universe-panel" aria-label="Winning profile galaxy">
-        <div class="panel-heading">
-          <div>
-            <p class="eyebrow">Role map</p>
-            <h2>Player-seasons by scoring load and role breadth</h2>
+      <nav class="analysis-nav" aria-label="Role explorer sections">
+        <a href="#role-map"><span>01</span>Role map</a>
+        <a href="#role-shape"><span>02</span>Role shape</a>
+        <a href="#similarity"><span>03</span>Similarity</a>
+        <a href="#benchmarks"><span>04</span>Benchmarks</a>
+        <a href="#fingerprint"><span>05</span>Fingerprint</a>
+      </nav>
+
+      <section class="hero-analysis-grid" aria-label="Selected players and role map">
+        <div id="playerCards" class="player-card-grid"></div>
+
+        <section id="role-map" class="panel universe-panel feature-panel" aria-label="Winning profile galaxy">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Role map</p>
+              <h2>Player-seasons by scoring load and role breadth</h2>
+            </div>
+            <p>Each point is one player-season. Horizontal position shows scoring load; vertical position shows non-scoring contribution. Color shows team win context. Hover for exact values.</p>
           </div>
-          <p>Each point is one player-season. Horizontal position shows scoring load; vertical position shows non-scoring contribution. Color shows team win context. Hover for exact values.</p>
-        </div>
-        <p class="definition-strip">Role breadth means the number of strong role areas. eFG% is shooting efficiency accounting for 3-pointers. Per 36 means a rate normalized to 36 minutes.</p>
-        <div id="roleUniverseChart" class="chart universe-chart"></div>
+          <p class="definition-strip">Role breadth means the number of strong role areas. eFG% is shooting efficiency accounting for 3-pointers. Per 36 means a rate normalized to 36 minutes.</p>
+          <div id="roleUniverseChart" class="chart universe-chart"></div>
+        </section>
       </section>
 
       <section class="layout visual-layout">
-        <div class="panel role-shape-panel" aria-label="Archetype radar role shape">
+        <div id="role-shape" class="panel role-shape-panel" aria-label="Archetype radar role shape">
           <div class="panel-heading">
             <div>
               <p class="eyebrow">Archetype radar</p>
@@ -97,7 +108,7 @@
           <div id="roleShapeChart" class="chart role-shape-chart"></div>
         </div>
 
-        <div class="panel constellation-panel" aria-label="Similar seasons constellation">
+        <div id="similarity" class="panel constellation-panel" aria-label="Similar seasons constellation">
           <div class="panel-heading">
             <div>
               <p class="eyebrow">Similar seasons constellation</p>
@@ -109,7 +120,7 @@
         </div>
       </section>
 
-      <section class="panel winning-bands-panel" aria-label="Winning bands benchmark overlay">
+      <section id="benchmarks" class="panel winning-bands-panel" aria-label="Winning bands benchmark overlay">
         <div class="panel-heading">
           <div>
             <p class="eyebrow">High-winning benchmark bands</p>
@@ -120,7 +131,7 @@
         <div id="winningBandsChart" class="chart winning-bands-chart"></div>
       </section>
 
-      <section class="panel fingerprint-panel" aria-label="Role fingerprint comparison">
+      <section id="fingerprint" class="panel fingerprint-panel" aria-label="Role fingerprint comparison">
         <div class="panel-heading">
           <div>
             <p class="eyebrow">Role fingerprint</p>
@@ -132,14 +143,14 @@
         <div id="fingerprintChart" class="chart fingerprint-chart"></div>
       </section>
 
-      <section class="layout compact-layout">
+      <section id="similarity-context" class="layout compact-layout">
         <div class="panel">
           <div class="panel-heading">
             <div>
               <p class="eyebrow">Similar-season context</p>
               <h2>How comparable seasons lined up with winning</h2>
             </div>
-            <p>Comparable-season median is the median team win percentage among statistically similar player-seasons. Strong-team comp share is the share of those similar seasons from high-winning teams.</p>
+            <p>Comparable-season median is the median team win percentage among statistically similar player-seasons. Strong-team comp share is the share of those similar seasons from high-winning teams. The comparison groups can overlap even when their medians differ.</p>
           </div>
           <div id="similarContext"></div>
         </div>
@@ -162,6 +173,6 @@
   <div id="tooltip" role="status" aria-live="polite"></div>
 
   <script src="{{ url_for('static', filename='vendor/d3.v7.min.js') }}?v=feedback1"></script>
-  <script src="{{ url_for('static', filename='js/app.js') }}?v=feedback1"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}?v=visual2"></script>
 </body>
 </html>
