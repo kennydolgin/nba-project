@@ -192,7 +192,6 @@
     renderPlayerTray();
     renderCoverage();
     renderBenchmark();
-    renderGeography();
     renderTabs();
     writeUrl(!!pushHistory);
   }
@@ -536,11 +535,6 @@
       raw[metric.key] = d3.sum(roster, function (row) { return row[metric.key] * row.minutes_per_game; }) / totalMinutes;
     });
     return { code: code, raw: raw, percentiles: {} };
-  }
-
-  function renderGeography() {
-    var meta = teamMeta[state.team] || [state.team, "Location not listed", "—"];
-    document.getElementById("teamLocation").innerHTML = '<span class="state-badge" aria-hidden="true">' + escapeHtml(meta[2]) + '</span><div><strong>' + escapeHtml(meta[0]) + "</strong><p>" + escapeHtml(meta[1]) + "</p><small>Geography is orientation only and is not part of the roster-shape analysis.</small></div>";
   }
 
   function renderTabs() {
